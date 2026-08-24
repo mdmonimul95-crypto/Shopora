@@ -84,7 +84,7 @@ const HeaderNavigation = ({
                     key={category}
                     type="button"
                     onClick={onMobileCategoryClose}
-                    className="group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-['Poppins'] text-[11px] font-medium text-[#475569] transition-colors duration-200 hover:bg-[#E8F5F3] hover:text-[#0F766E]"
+                    className="group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-['Poppins'] text-[14px] font-medium text-[#475569] transition-colors duration-200 hover:bg-[#E8F5F3] hover:text-[#0F766E]"
                   >
                     <span>
                       {category}
@@ -136,7 +136,7 @@ const HeaderNavigation = ({
             <button
               key={link}
               type="button"
-              className={`whitespace-nowrap px-2 font-['Poppins'] text-[9px] font-medium ${
+              className={`whitespace-nowrap px-2 font-['Poppins'] text-[12px] font-medium ${
                 index === 0
                   ? "text-[#0F766E]"
                   : "text-[#64748B]"
