@@ -1,0 +1,7 @@
+export interface RegisterUser {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: "Customer" | "Seller" | "Admin";
+}
