@@ -1,12 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import {
   Heart,
   Search,
   ShoppingCart,
   UserRound,
+  ChevronDown,
+  LayoutDashboard,
+  LogIn,
+  UserPlus,
+  LogOut,
+  Package,
+  Ticket,
+  MapPin,
+  Settings,
 } from "lucide-react";
+
+import { authClient } from "@/app/lib/auth-client";
+import Image from "next/image";
 
 interface HeaderMainProps {
   onMenuOpen: () => void;
@@ -19,6 +32,13 @@ const HeaderMain = ({
   categoryOpen,
   onCategoryToggle,
 }: HeaderMainProps) => {
+  const [accountOpen, setAccountOpen] = useState(false);
+
+  // Better Auth Session
+  const { data: session } = authClient.useSession();
+
+  const user = session?.user;
+
   return (
     <>
       {/* =====================================================
@@ -27,9 +47,13 @@ const HeaderMain = ({
       <div className="hidden lg:block">
         <div className="mx-auto flex max-w-7xl items-center gap-7 px-4 py-5">
 
-          {/* Logo */}
-          <div className="flex w-43.75 shrink-0 items-center gap-2.5">
-
+          {/* =================================================
+              LOGO
+          ================================================== */}
+          <Link
+            href="/"
+            className="flex w-43.75 shrink-0 items-center gap-2.5"
+          >
             <div className="relative flex h-12 w-10 items-end justify-center rounded-lg bg-[#0F766E] shadow-sm">
 
               {/* Bag Handle */}
@@ -49,10 +73,11 @@ const HeaderMain = ({
                 Smart Shopping, Made Simple
               </p>
             </div>
+          </Link>
 
-          </div>
-
-          {/* Search */}
+          {/* =================================================
+              SEARCH
+          ================================================== */}
           <div className="flex h-11 flex-1 overflow-hidden rounded-lg border border-[#E2E8F0] bg-white">
 
             <input
@@ -89,15 +114,16 @@ const HeaderMain = ({
                 strokeWidth={1.8}
               />
             </button>
-
           </div>
 
-          {/* Actions */}
+          {/* =================================================
+              ACTIONS
+          ================================================== */}
           <div className="flex shrink-0 items-center gap-5">
 
             {/* Wishlist */}
-            <button
-              type="button"
+            <Link
+              href="/wishlist"
               className="group flex flex-col items-center gap-1"
             >
               <Heart
@@ -109,11 +135,11 @@ const HeaderMain = ({
               <span className="font-['Poppins'] text-[14px] font-medium text-[#475569]">
                 Wishlist
               </span>
-            </button>
+            </Link>
 
             {/* Cart */}
-            <button
-              type="button"
+            <Link
+              href="/cart"
               className="group relative flex flex-col items-center gap-1"
             >
               <div className="relative">
@@ -131,24 +157,249 @@ const HeaderMain = ({
               <span className="font-['Poppins'] text-[14px] font-medium text-[#475569]">
                 Cart
               </span>
-            </button>
+            </Link>
 
-            {/* Account */}
-            <button
-              type="button"
-              className="group flex flex-col items-center gap-1"
+            {/* =================================================
+                ACCOUNT
+            ================================================== */}
+            <div
+              className="group relative"
+              onMouseEnter={() => setAccountOpen(true)}
+              onMouseLeave={() => setAccountOpen(false)}
             >
-              <UserRound
-                size={22}
-                strokeWidth={1.6}
-                className="text-[#475569] transition-colors group-hover:text-[#0F766E]"
-              />
+              {/* Account Button */}
+              <button
+                type="button"
+                onClick={() => setAccountOpen((prev) => !prev)}
+                className="flex items-center gap-2"
+              >
+                {user ? (
+                  <>
+                    {/* Avatar */}
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
 
-              <span className="font-['Poppins'] text-[14px] font-medium text-[#475569]">
-                Account
-              </span>
-            </button>
+                      {user.image ? (
+                        <Image
+                          src={user.image}
+                          alt={user.name || "User"}
+                          className="h-full w-full object-cover"
+                          height={150}
+                          width={150}
+                        />
+                      ) : (
+                        <UserRound
+                          size={21}
+                          strokeWidth={1.7}
+                          className="text-[#0F766E]"
+                        />
+                      )}
 
+                    </div>
+
+                    {/* User Name */}
+                    <div className="hidden text-left xl:block">
+                      <p className="font-['Poppins'] text-[14px] font-semibold leading-5 text-[#1E293B]">
+                        {user.name || "User"}
+                      </p>
+
+                      <p className="font-['Poppins'] text-[11px] text-[#64748B]">
+                        My Account
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Logged Out */}
+                    <UserRound
+                      size={22}
+                      strokeWidth={1.6}
+                      className="text-[#475569] transition-colors group-hover:text-[#0F766E]"
+                    />
+
+                    <span className="font-['Poppins'] text-[14px] font-medium text-[#475569]">
+                      My Account
+                    </span>
+                  </>
+                )}
+
+                <ChevronDown
+                  size={16}
+                  strokeWidth={1.8}
+                  className={`text-[#64748B] transition-transform duration-200 ${
+                    accountOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* =================================================
+                  ACCOUNT DROPDOWN
+              ================================================== */}
+              <div
+                className={`absolute right-0 top-full z-50 mt-4 w-80 rounded-xl border border-[#E8EEEE] bg-white p-3 shadow-[0_10px_35px_rgba(15,118,110,0.12)] transition-all duration-200 ${
+                  accountOpen
+                    ? "visible translate-y-0 opacity-100"
+                    : "invisible translate-y-2 opacity-0"
+                }`}
+              >
+
+                {user ? (
+                  <>
+                    {/* Logged In Header */}
+                    <div className="border-b border-[#E8EEEE] px-3 pb-3">
+
+                      <p className="font-['Poppins'] text-sm text-[#475569]">
+                        Welcome back,
+                      </p>
+
+                      <p className="mt-1 font-['Poppins'] text-lg font-semibold text-[#0F766E]">
+                        {user.name || "User"}
+                      </p>
+
+                    </div>
+
+                    {/* Dashboard */}
+                    <Link
+                      href="/dashboard"
+                      className="mt-2 flex w-full items-center gap-3 rounded-lg bg-[#E8F5F3] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#1E293B] transition-colors hover:bg-[#D9EFEC]"
+                    >
+                      <LayoutDashboard
+                        size={19}
+                        strokeWidth={1.7}
+                        className="text-[#0F766E]"
+                      />
+
+                      Dashboard
+                    </Link>
+
+                    {/* Orders */}
+                    <Link
+                      href="/orders"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                    >
+                      <Package
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      My Orders
+                    </Link>
+
+                    {/* Wishlist */}
+                    <Link
+                      href="/wishlist"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                    >
+                      <Heart
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      My Wishlist
+                    </Link>
+
+                    {/* Coupons */}
+                    <Link
+                      href="/coupons"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                    >
+                      <Ticket
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      My Coupons
+                    </Link>
+
+                    {/* Addresses */}
+                    <Link
+                      href="/addresses"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                    >
+                      <MapPin
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      Addresses
+                    </Link>
+
+                    {/* Account Settings */}
+                    <Link
+                      href="/account/settings"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                    >
+                      <Settings
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      Account Settings
+                    </Link>
+
+                    {/* Logout */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await authClient.signOut();
+                        setAccountOpen(false);
+                      }}
+                      className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm font-medium text-[#FF6B6B] transition-colors hover:bg-[#FFF1F1]"
+                    >
+                      <LogOut
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Logged Out Header */}
+                    <div className="border-b border-[#E8EEEE] px-3 pb-3">
+
+                      <p className="font-['Poppins'] text-sm font-medium text-[#1E293B]">
+                        Welcome to Shopora
+                      </p>
+
+                      <p className="mt-1 font-['Poppins'] text-xs leading-5 text-[#64748B]">
+                        Sign in or create an account to continue.
+                      </p>
+
+                    </div>
+
+                    {/* Login */}
+                    <Link
+                      href="/auth/login"
+                      onClick={() => setAccountOpen(false)}
+                      className="mt-3 flex w-full items-center gap-3 rounded-lg bg-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-white transition-colors hover:bg-[#0B625B]"
+                    >
+                      <LogIn
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      Login
+                    </Link>
+
+                    {/* Register */}
+                    <Link
+                      href="/auth/register"
+                      onClick={() => setAccountOpen(false)}
+                      className="mt-2 flex w-full items-center gap-3 rounded-lg border border-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#0F766E] transition-colors hover:bg-[#E8F5F3]"
+                    >
+                      <UserPlus
+                        size={19}
+                        strokeWidth={1.7}
+                      />
+
+                      Register
+                    </Link>
+                  </>
+                )}
+
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -176,8 +427,10 @@ const HeaderMain = ({
             </button>
 
             {/* Logo */}
-            <div className="flex items-center gap-2">
-
+            <Link
+              href="/"
+              className="flex items-center gap-2"
+            >
               <div className="relative flex h-9 w-8 items-end justify-center rounded-md bg-[#0F766E]">
 
                 <div className="absolute -top-1.5 left-1/2 h-3.5 w-4 -translate-x-1/2 rounded-t-full border-2 border-b-0 border-[#0F766E]" />
@@ -185,7 +438,6 @@ const HeaderMain = ({
                 <span className="mb-0.5 font-['Poppins'] text-xl font-bold leading-none text-[#FF6B6B]">
                   S
                 </span>
-
               </div>
 
               <div>
@@ -197,16 +449,15 @@ const HeaderMain = ({
                   Smart Shopping, Made Simple
                 </p>
               </div>
-
-            </div>
+            </Link>
           </div>
 
           {/* Right */}
           <div className="flex items-center gap-3">
 
             {/* Wishlist */}
-            <button
-              type="button"
+            <Link
+              href="/wishlist"
               aria-label="Wishlist"
               className="text-[#475569]"
             >
@@ -214,11 +465,11 @@ const HeaderMain = ({
                 size={20}
                 strokeWidth={1.7}
               />
-            </button>
+            </Link>
 
             {/* Cart */}
-            <button
-              type="button"
+            <Link
+              href="/cart"
               aria-label="Cart"
               className="relative text-[#475569]"
             >
@@ -230,24 +481,200 @@ const HeaderMain = ({
               <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6B6B] font-['Poppins'] text-[7px] font-semibold text-white">
                 3
               </span>
-            </button>
+            </Link>
 
-            {/* Account */}
-            <button
-              type="button"
-              aria-label="Account"
-              className="text-[#475569]"
-            >
-              <UserRound
-                size={20}
-                strokeWidth={1.7}
-              />
-            </button>
+            {/* =================================================
+                MOBILE ACCOUNT
+            ================================================== */}
+            <div className="relative">
 
+              <button
+                type="button"
+                aria-label="Account"
+                onClick={() => setAccountOpen((prev) => !prev)}
+                className="flex items-center gap-1 text-[#475569]"
+              >
+                {user ? (
+                  <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
+
+                    {user.image ? (
+                      <Image
+                        src={user.image}
+                        alt={user.name || "User"}
+                        className="h-full w-full object-cover"
+                        height={150}
+                        width={150}
+                      />
+                      
+                    ) : (
+                      <UserRound
+                        size={17}
+                        strokeWidth={1.7}
+                        className="text-[#0F766E]"
+                      />
+                    )}
+
+                  </div>
+                ) : (
+                  <UserRound
+                    size={20}
+                    strokeWidth={1.7}
+                  />
+                )}
+
+                <ChevronDown
+                  size={13}
+                  strokeWidth={1.8}
+                  className={`transition-transform duration-200 ${
+                    accountOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Mobile Account Dropdown */}
+              <div
+                className={`absolute right-0 top-full z-50 mt-3 w-72 rounded-xl border border-[#E8EEEE] bg-white p-3 shadow-[0_10px_35px_rgba(15,118,110,0.12)] transition-all duration-200 ${
+                  accountOpen
+                    ? "visible translate-y-0 opacity-100"
+                    : "invisible translate-y-2 opacity-0"
+                }`}
+              >
+
+                {user ? (
+                  <>
+                    {/* User */}
+                    <div className="border-b border-[#E8EEEE] px-3 pb-3">
+
+                      <p className="font-['Poppins'] text-xs text-[#475569]">
+                        Welcome back,
+                      </p>
+
+                      <p className="mt-1 font-['Poppins'] text-base font-semibold text-[#0F766E]">
+                        {user.name || "User"}
+                      </p>
+
+                    </div>
+
+                    {/* Dashboard */}
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setAccountOpen(false)}
+                      className="mt-2 flex items-center gap-3 rounded-lg bg-[#E8F5F3] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#1E293B]"
+                    >
+                      <LayoutDashboard
+                        size={18}
+                        className="text-[#0F766E]"
+                      />
+
+                      Dashboard
+                    </Link>
+
+                    {/* Orders */}
+                    <Link
+                      href="/orders"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] hover:bg-[#F6FAF9]"
+                    >
+                      <Package
+                        size={18}
+                      />
+
+                      My Orders
+                    </Link>
+
+                    {/* Wishlist */}
+                    <Link
+                      href="/wishlist"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] hover:bg-[#F6FAF9]"
+                    >
+                      <Heart
+                        size={18}
+                      />
+
+                      My Wishlist
+                    </Link>
+
+                    {/* Settings */}
+                    <Link
+                      href="/account/settings"
+                      onClick={() => setAccountOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] hover:bg-[#F6FAF9]"
+                    >
+                      <Settings
+                        size={18}
+                      />
+
+                      Account Settings
+                    </Link>
+
+                    {/* Logout */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await authClient.signOut();
+                        setAccountOpen(false);
+                      }}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm font-medium text-[#FF6B6B] hover:bg-[#FFF1F1]"
+                    >
+                      <LogOut
+                        size={18}
+                      />
+
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Welcome */}
+                    <div className="border-b border-[#E8EEEE] px-3 pb-3">
+
+                      <p className="font-['Poppins'] text-sm font-medium text-[#1E293B]">
+                        Welcome to Shopora
+                      </p>
+
+                      <p className="mt-1 font-['Poppins'] text-xs leading-5 text-[#64748B]">
+                        Sign in or create an account to continue.
+                      </p>
+
+                    </div>
+
+                    {/* Login */}
+                    <Link
+                      href="/auth/login"
+                      onClick={() => setAccountOpen(false)}
+                      className="mt-3 flex items-center gap-3 rounded-lg bg-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-white"
+                    >
+                      <LogIn
+                        size={18}
+                      />
+
+                      Login
+                    </Link>
+
+                    {/* Register */}
+                    <Link
+                      href="/auth/register"
+                      onClick={() => setAccountOpen(false)}
+                      className="mt-2 flex items-center gap-3 rounded-lg border border-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#0F766E]"
+                    >
+                      <UserPlus
+                        size={18}
+                      />
+
+                      Register
+                    </Link>
+                  </>
+                )}
+
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Search */}
+        {/* =================================================
+            MOBILE SEARCH
+        ================================================== */}
         <div className="border-b border-[#E8EEEE] px-4 py-3">
 
           <div className="flex h-10 overflow-hidden rounded-lg border border-[#E2E8F0]">
@@ -263,7 +690,9 @@ const HeaderMain = ({
               aria-label="Search"
               className="flex w-10 items-center justify-center bg-[#0F766E] text-white"
             >
-              <Search size={17} />
+              <Search
+                size={17}
+              />
             </button>
 
           </div>

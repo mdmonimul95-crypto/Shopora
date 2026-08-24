@@ -39,14 +39,14 @@ const HeaderTopBar = () => {
 
           <button
             type="button"
-            className="font-['Poppins'] text-[10px] font-medium text-[#475569] transition-colors hover:text-[#0F766E]"
+            className="font-['Poppins'] text-[14px] font-medium text-[#475569] transition-colors hover:text-[#0F766E]"
           >
             Help
           </button>
 
           <button
             type="button"
-            className="flex items-center gap-1 font-['Poppins'] text-[10px] font-medium text-[#475569] transition-colors hover:text-[#0F766E]"
+            className="flex items-center gap-1 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-colors hover:text-[#0F766E]"
           >
             English
 
