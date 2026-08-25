@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   ChevronDown,
   ChevronRight,
@@ -18,23 +19,88 @@ interface HeaderNavigationProps {
   onMobileCategoryClose: () => void;
 }
 
+/* =====================================================
+   CATEGORIES
+===================================================== */
+
 const categories = [
-  "Electronics",
-  "Fashion",
-  "Home & Living",
-  "Beauty & Personal Care",
-  "Sports & Outdoors",
-  "Baby & Toys",
+  {
+    label: "Electronics",
+    href: "/shop?category=electronics",
+  },
+  {
+    label: "Fashion",
+    href: "/shop?category=fashion",
+  },
+  {
+    label: "Home & Living",
+    href: "/shop?category=home-living",
+  },
+  {
+    label: "Beauty & Personal Care",
+    href: "/shop?category=beauty-personal-care",
+  },
+  {
+    label: "Sports & Outdoors",
+    href: "/shop?category=sports-outdoors",
+  },
+  {
+    label: "Baby & Toys",
+    href: "/shop?category=baby-toys",
+  },
 ];
 
+/* =====================================================
+   MAIN NAVIGATION
+===================================================== */
+
 const navLinks = [
-  "Home",
-  "Shop",
-  "Deals",
-  "New Arrivals",
-  "Brands",
-  "About Us",
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Shop",
+    href: "/shop",
+  },
+  {
+    label: "Deals",
+    href: "/deals",
+  },
+  {
+    label: "New Arrivals",
+    href: "/new-arrivals",
+  },
+  {
+    label: "Brands",
+    href: "/brands",
+  },
+  {
+    label: "About Us",
+    href: "/about",
+  },
 ];
+
+/* =====================================================
+   EXTRA LINKS
+===================================================== */
+
+const extraLinks = [
+  {
+    label: "Track Order",
+    href: "/track-order",
+    icon: Truck,
+  },
+  {
+    label: "Help & Support",
+    href: "/help",
+    icon: CircleHelp,
+  },
+];
+
+/* =====================================================
+   COMPONENT
+===================================================== */
 
 const HeaderNavigation = ({
   categoryOpen,
@@ -48,11 +114,14 @@ const HeaderNavigation = ({
       {/* =====================================================
           DESKTOP NAVIGATION
       ====================================================== */}
-      <div className="hidden border-b border-[#E8EEEE] lg:block">
 
+      <div className="hidden border-b border-[#E8EEEE] lg:block">
         <div className="mx-auto flex h-12 max-w-7xl items-center px-4">
 
-          {/* Categories */}
+          {/* =================================================
+              CATEGORIES
+          ================================================= */}
+
           <div className="relative h-full w-43.75 shrink-0">
 
             <button
@@ -76,50 +145,56 @@ const HeaderNavigation = ({
             </button>
 
             {/* Category Dropdown */}
+
             {categoryOpen && (
               <div className="absolute left-0 top-[calc(100%+1px)] z-50 w-64 overflow-hidden rounded-xl border border-[#E8EEEE] bg-white p-2 shadow-[0_10px_35px_rgba(15,118,110,0.12)]">
 
                 {categories.map((category) => (
-                  <button
-                    key={category}
-                    type="button"
+                  <Link
+                    key={category.label}
+                    href={category.href}
                     onClick={onMobileCategoryClose}
                     className="group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-['Poppins'] text-[14px] font-medium text-[#475569] transition-colors duration-200 hover:bg-[#E8F5F3] hover:text-[#0F766E]"
                   >
                     <span>
-                      {category}
+                      {category.label}
                     </span>
 
                     <ChevronRight
                       size={14}
                       className="text-[#94A3B8] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-[#0F766E]"
                     />
-                  </button>
+                  </Link>
                 ))}
 
               </div>
             )}
           </div>
 
-          {/* Navigation */}
+          {/* =================================================
+              DESKTOP NAV LINKS
+          ================================================= */}
+
           <nav className="flex h-full items-center gap-8">
 
             {navLinks.map((link, index) => (
-              <button
-                key={link}
-                type="button"
-                className={`relative h-full font-['Poppins'] text-[16px] font-medium transition-colors duration-300 ${
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`relative flex h-full items-center font-['Poppins'] text-[16px] font-medium transition-colors duration-300 ${
                   index === 0
                     ? "text-[#0F766E]"
                     : "text-[#475569] hover:text-[#0F766E]"
                 }`}
               >
-                {link}
+                {link.label}
+
+                {/* Active underline */}
 
                 {index === 0 && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-[#0F766E]" />
                 )}
-              </button>
+              </Link>
             ))}
 
           </nav>
@@ -129,33 +204,34 @@ const HeaderNavigation = ({
       {/* =====================================================
           MOBILE QUICK NAVIGATION
       ====================================================== */}
+
       <div className="flex items-center justify-between overflow-x-auto border-b border-[#E8EEEE] px-4 py-2.5 lg:hidden">
 
-        {["Home", "Shop", "Deals", "New Arrivals", "Brands"].map(
-          (link, index) => (
-            <button
-              key={link}
-              type="button"
-              className={`whitespace-nowrap px-2 font-['Poppins'] text-[12px] font-medium ${
-                index === 0
-                  ? "text-[#0F766E]"
-                  : "text-[#64748B]"
-              }`}
-            >
-              {link}
-            </button>
-          )
-        )}
+        {navLinks.slice(0, 5).map((link, index) => (
+          <Link
+            key={link.label}
+            href={link.href}
+            className={`whitespace-nowrap px-2 font-['Poppins'] text-[12px] font-medium ${
+              index === 0
+                ? "text-[#0F766E]"
+                : "text-[#64748B]"
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
 
       </div>
 
       {/* =====================================================
           MOBILE SIDE MENU
       ====================================================== */}
+
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-60 lg:hidden">
 
           {/* Overlay */}
+
           <button
             type="button"
             aria-label="Close menu"
@@ -164,26 +240,34 @@ const HeaderNavigation = ({
           />
 
           {/* Drawer */}
+
           <aside className="relative h-full w-70 overflow-y-auto bg-white shadow-xl">
 
-            {/* Drawer Header */}
+            {/* =================================================
+                DRAWER HEADER
+            ================================================= */}
+
             <div className="flex h-16 items-center justify-between border-b border-[#E8EEEE] px-5">
 
-              <div className="flex items-center gap-2">
+              {/* Logo */}
 
+              <Link
+                href="/"
+                onClick={onMobileMenuClose}
+                className="flex items-center gap-2"
+              >
                 <div className="flex h-9 w-8 items-end justify-center rounded-md bg-[#0F766E]">
-
                   <span className="mb-0.5 font-['Poppins'] text-xl font-bold text-[#FF6B6B]">
                     S
                   </span>
-
                 </div>
 
                 <span className="font-['Poppins'] text-base font-bold text-[#1E293B]">
                   Shopora
                 </span>
+              </Link>
 
-              </div>
+              {/* Close */}
 
               <button
                 type="button"
@@ -196,10 +280,16 @@ const HeaderNavigation = ({
 
             </div>
 
-            {/* Drawer Content */}
+            {/* =================================================
+                DRAWER CONTENT
+            ================================================= */}
+
             <div className="px-5 py-5">
 
-              {/* Categories */}
+              {/* =================================================
+                  CATEGORIES
+              ================================================= */}
+
               <div className="mb-4">
 
                 <button
@@ -221,13 +311,14 @@ const HeaderNavigation = ({
                 </button>
 
                 {/* Mobile Category List */}
+
                 {categoryOpen && (
                   <div className="mt-2 space-y-1 rounded-lg border border-[#E8EEEE] bg-[#FAFCFC] p-2">
 
                     {categories.map((category) => (
-                      <button
-                        key={category}
-                        type="button"
+                      <Link
+                        key={category.label}
+                        href={category.href}
                         onClick={() => {
                           onMobileCategoryClose();
                           onMobileMenuClose();
@@ -235,27 +326,31 @@ const HeaderNavigation = ({
                         className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left font-['Poppins'] text-[10px] font-medium text-[#475569] transition-colors hover:bg-white hover:text-[#0F766E]"
                       >
                         <span>
-                          {category}
+                          {category.label}
                         </span>
 
                         <ChevronRight
                           size={13}
                           className="text-[#94A3B8]"
                         />
-                      </button>
+                      </Link>
                     ))}
 
                   </div>
                 )}
+
               </div>
 
-              {/* Main Links */}
+              {/* =================================================
+                  MAIN LINKS
+              ================================================= */}
+
               <nav className="space-y-1">
 
                 {navLinks.map((link, index) => (
-                  <button
-                    key={link}
-                    type="button"
+                  <Link
+                    key={link.label}
+                    href={link.href}
                     onClick={onMobileMenuClose}
                     className={`flex w-full items-center rounded-lg px-4 py-3 text-left font-['Poppins'] text-xs font-medium transition-colors ${
                       index === 0
@@ -263,33 +358,38 @@ const HeaderNavigation = ({
                         : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
                     }`}
                   >
-                    {link}
-                  </button>
+                    {link.label}
+                  </Link>
                 ))}
 
               </nav>
 
               {/* Divider */}
+
               <div className="my-5 border-t border-[#E8EEEE]" />
 
-              {/* Extra Links */}
+              {/* =================================================
+                  EXTRA LINKS
+              ================================================= */}
+
               <div className="space-y-1">
 
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-['Poppins'] text-xs font-medium text-[#475569] transition-colors hover:bg-[#F6FAF9] hover:text-[#0F766E]"
-                >
-                  <Truck size={16} />
-                  Track Order
-                </button>
+                {extraLinks.map((link) => {
+                  const Icon = link.icon;
 
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-['Poppins'] text-xs font-medium text-[#475569] transition-colors hover:bg-[#F6FAF9] hover:text-[#0F766E]"
-                >
-                  <CircleHelp size={16} />
-                  Help & Support
-                </button>
+                  return (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      onClick={onMobileMenuClose}
+                      className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-['Poppins'] text-xs font-medium text-[#475569] transition-colors hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+                    >
+                      <Icon size={16} />
+
+                      {link.label}
+                    </Link>
+                  );
+                })}
 
               </div>
 
