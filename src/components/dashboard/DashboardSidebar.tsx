@@ -15,8 +15,8 @@ import {
   Sparkles,
   Headphones,
   LogOut,
-  Menu,
   X,
+  Sidebar,
 } from "lucide-react";
 
 const navContent = [
@@ -103,7 +103,7 @@ const DashboardSidebar = () => {
             hover:text-[#0F766E]
           "
         >
-          <Menu
+          <Sidebar
             size={18}
             strokeWidth={1.8}
             className="text-[#475569]"
