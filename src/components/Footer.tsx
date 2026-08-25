@@ -1,46 +1,98 @@
+"use client";
+
+import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
-
 const shopLinks = [
-  "All Products",
-  "Deals of the Day",
-  "New Arrivals",
-  "Top Rated",
-  "Best Sellers",
+  {
+    label: "All Products",
+    href: "/shop",
+  },
+  {
+    label: "Deals of the Day",
+    href: "/deals",
+  },
+  {
+    label: "New Arrivals",
+    href: "/new-arrivals",
+  },
+  {
+    label: "Top Rated",
+    href: "/top-rated",
+  },
+  {
+    label: "Best Sellers",
+    href: "/best-sellers",
+  },
 ];
 
 const customerLinks = [
-  "Track Order",
-  "Shipping & Delivery",
-  "Returns & Refunds",
-  "FAQs",
-  "Contact Us",
+  {
+    label: "Track Order",
+    href: "/track-order",
+  },
+  {
+    label: "Shipping & Delivery",
+    href: "/shipping",
+  },
+  {
+    label: "Returns & Refunds",
+    href: "/returns",
+  },
+  {
+    label: "FAQs",
+    href: "/faqs",
+  },
+  {
+    label: "Contact Us",
+    href: "/contact",
+  },
 ];
 
 const companyLinks = [
-  "About Us",
-  "Careers",
-  "Privacy Policy",
-  "Terms & Conditions",
-  "Cookie Policy",
+  {
+    label: "About Us",
+    href: "/about",
+  },
+  {
+    label: "Careers",
+    href: "/careers",
+  },
+  {
+    label: "Privacy Policy",
+    href: "/privacy-policy",
+  },
+  {
+    label: "Terms & Conditions",
+    href: "/terms",
+  },
+  {
+    label: "Cookie Policy",
+    href: "/cookie-policy",
+  },
 ];
-
-
 
 const Footer = () => {
   return (
     <footer className="border-t border-[#E8EEEE] bg-white">
 
-      {/* Main Footer */}
+      {/* =====================================================
+          MAIN FOOTER
+      ====================================================== */}
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
 
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-10">
 
-          {/* Brand */}
+          {/* =================================================
+              BRAND
+          ================================================== */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
 
             {/* Logo */}
-            <div className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="flex items-center gap-2"
+            >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0F766E]">
                 <ShoppingBag
                   size={21}
@@ -58,79 +110,93 @@ const Footer = () => {
                   Smart Shopping, Made Simple
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Description */}
-            <p className="mt-5 max-w-47.5 font-['Poppins'] text-[14px] leading-5 text-[#64748B] ">
-              Your one-stop destinatix-won for smart, secure and simple online
+            <p className="mt-5 max-w-47.5 font-['Poppins'] text-[14px] leading-5 text-[#64748B]">
+              Your one-stop destination for smart, secure and simple online
               shopping.
             </p>
 
-        
           </div>
 
-          {/* Shop */}
+          {/* =================================================
+              SHOP
+          ================================================== */}
           <div>
+
             <h3 className="font-['Poppins'] text-xs font-semibold text-[#1E293B] sm:text-sm">
               Shop
             </h3>
 
             <ul className="mt-4 space-y-2.5">
               {shopLinks.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="font-['Poppins'] text-[14px] text-[#64748B] transition-colors duration-300 hover:text-[#0F766E] "
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="font-['Poppins'] text-[14px] text-[#64748B] transition-colors duration-300 hover:text-[#0F766E]"
                   >
-                    {link}
-                  </a>
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
+
           </div>
 
-          {/* Customer Service */}
+          {/* =================================================
+              CUSTOMER SERVICE
+          ================================================== */}
           <div>
+
             <h3 className="font-['Poppins'] text-xs font-semibold text-[#1E293B] sm:text-sm">
               Customer Service
             </h3>
 
             <ul className="mt-4 space-y-2.5">
               {customerLinks.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="font-['Poppins'] text-[14px] text-[#64748B] transition-colors duration-300 hover:text-[#0F766E] "
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="font-['Poppins'] text-[14px] text-[#64748B] transition-colors duration-300 hover:text-[#0F766E]"
                   >
-                    {link}
-                  </a>
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
+
           </div>
 
-          {/* Company */}
+          {/* =================================================
+              COMPANY
+          ================================================== */}
           <div>
+
             <h3 className="font-['Poppins'] text-xs font-semibold text-[#1E293B] sm:text-sm">
               Company
             </h3>
 
             <ul className="mt-4 space-y-2.5">
               {companyLinks.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="font-['Poppins'] text-[14px] text-[#64748B] transition-colors duration-300 hover:text-[#0F766E] "
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="font-['Poppins'] text-[14px] text-[#64748B] transition-colors duration-300 hover:text-[#0F766E]"
                   >
-                    {link}
-                  </a>
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
+
           </div>
 
-          {/* Secure Payments */}
+          {/* =================================================
+              SECURE PAYMENTS
+          ================================================== */}
           <div>
+
             <h3 className="font-['Poppins'] text-xs font-semibold text-[#1E293B] sm:text-sm">
               Secure Payments
             </h3>
@@ -138,12 +204,14 @@ const Footer = () => {
             {/* Payment Methods */}
             <div className="mt-4 flex flex-wrap gap-2">
 
+              {/* VISA */}
               <div className="flex h-8 w-12 items-center justify-center rounded-md border border-[#E8EEEE] bg-[#F8FAFC]">
                 <span className="font-['Poppins'] text-[10px] font-bold italic text-[#2563EB]">
                   VISA
                 </span>
               </div>
 
+              {/* Mastercard */}
               <div className="flex h-8 w-12 items-center justify-center rounded-md border border-[#E8EEEE] bg-[#F8FAFC]">
                 <div className="flex items-center">
                   <span className="h-3 w-5 rounded-full bg-[#EB001B]" />
@@ -151,12 +219,14 @@ const Footer = () => {
                 </div>
               </div>
 
+              {/* PayPal */}
               <div className="flex h-8 w-12 items-center justify-center rounded-md border border-[#E8EEEE] bg-[#F8FAFC]">
                 <span className="font-['Poppins'] text-[8px] font-bold italic text-[#0070BA]">
                   PayPal
                 </span>
               </div>
 
+              {/* Stripe */}
               <div className="flex h-8 w-12 items-center justify-center rounded-md border border-[#E8EEEE] bg-[#F8FAFC]">
                 <span className="font-['Poppins'] text-[9px] font-bold text-[#635BFF]">
                   stripe
@@ -166,22 +236,29 @@ const Footer = () => {
             </div>
 
             {/* Security Text */}
-            <p className="mt-4 max-w-47.5 font-['Poppins'] text-[14px] leading-5 text-[#64748B] ">
+            <p className="mt-4 max-w-47.5 font-['Poppins'] text-[14px] leading-5 text-[#64748B]">
               We protect your payment information with industry-leading
               security.
             </p>
+
           </div>
 
         </div>
       </div>
 
-      {/* Bottom Copyright */}
+      {/* =====================================================
+          BOTTOM COPYRIGHT
+      ====================================================== */}
       <div className="border-t border-[#E8EEEE]">
+
         <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
+
           <p className="font-['Poppins'] text-[9px] text-[#94A3B8] sm:text-[10px]">
             © 2026 Shopora. All rights reserved.
           </p>
+
         </div>
+
       </div>
 
     </footer>
