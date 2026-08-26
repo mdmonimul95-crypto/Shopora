@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/app/lib/auth-client";
 
+
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -30,6 +31,7 @@ import {
   Bot,
   FileBarChart,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -180,6 +182,28 @@ const sellerNavItems: NavItem[] = [
   },
 ];
 
+//Sub Menu
+const productLinks = [
+  {
+    label: "All Products",
+    href: "/dashboard/seller/products",
+  },
+  {
+    label: "Add New Product",
+    href: "/dashboard/seller/products/add",
+  },
+  {
+    label: "Categories",
+    href: "/dashboard/products/categories",
+  },
+  {
+    label: "Brands",
+    href: "/dashboard/products/brands",
+  },
+];
+
+
+
 /* =========================================================
    ADMIN NAVIGATION
 ========================================================= */
@@ -268,6 +292,11 @@ const DashboardSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const pathname = usePathname();
+  const [isProductsOpen, setIsProductsOpen] = useState(
+  pathname.startsWith("/dashboard/products")
+)
+
+
 
   const { data: session, isPending } = useSession();
 
@@ -279,7 +308,7 @@ const DashboardSidebar = () => {
 
   const userRole: UserRole =
     ((user as { role?: UserRole } | undefined)?.role as UserRole) ??
-    "customer";
+    "seller";
 
   const navItems = navItemsMap[userRole];
 
@@ -359,59 +388,129 @@ const DashboardSidebar = () => {
       <div className="space-y-1">
 
         {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.href);
 
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={() => setIsOpen(false)}
-              className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
-                active
-                  ? "bg-[#E8F5F3] text-[#0F766E]"
-                  : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
-              }`}
-            >
-              <Icon
-                size={18}
-                strokeWidth={1.7}
-                className={`shrink-0 transition-colors ${
-                  active
-                    ? "text-[#0F766E]"
-                    : "text-[#64748B] group-hover:text-[#0F766E]"
-                }`}
-              />
+  // =====================================================
+  // PRODUCTS DROPDOWN
+  // =====================================================
 
-              <span className="flex-1">
-                {item.label}
-              </span>
+  if (
+    userRole === "seller" &&
+    item.label === "Products"
+  ) {
+    return (
+      <div key={item.label}>
 
-              {/* Number Badge */}
-              {item.badge && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF6B6B] px-1.5 font-['Poppins'] text-[14px] font-semibold text-white">
-                  {item.badge}
-                </span>
-              )}
+        {/* Products Button */}
+        <button
+          type="button"
+          onClick={() =>
+            setIsProductsOpen((prev) => !prev)
+          }
+          className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
+            pathname.startsWith("/dashboard/seller/products")
+              ? "bg-[#E8F5F3] text-[#0F766E]"
+              : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+          }`}
+        >
+          <Package
+            size={18}
+            strokeWidth={1.8}
+          />
 
-              {/* New Badge */}
-              {item.badgeText && (
-                <span className="rounded-full bg-[#0F766E] px-2 py-0.5 font-['Poppins'] text-[14px] font-semibold text-white">
-                  {item.badgeText}
-                </span>
-              )}
+          <span className="flex-1 text-left">
+            Products
+          </span>
 
-              {/* Seller AI Tools Arrow */}
-              {userRole === "seller" &&
-                item.label === "AI Tools" && (
-                  <ChevronRight
-                    size={16}
-                    className="text-[#64748B]"
-                  />
-                )}
-            </Link>
-          );
-        })}
+          <ChevronDown
+            size={16}
+            strokeWidth={1.8}
+            className={`transition-transform duration-200 ${
+              isProductsOpen
+                ? "rotate-180"
+                : ""
+            }`}
+          />
+        </button>
+
+        {/* Products Dropdown */}
+        {isProductsOpen && (
+          <div className="relative ml-4 mt-1 space-y-1 border-l border-[#DDE8E7] pl-3">
+
+            {productLinks.map((product) => {
+              const active = isActive(
+                product.href
+              );
+
+              return (
+                <Link
+                  key={product.href}
+                  href={product.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block rounded-md px-3 py-2 font-['Poppins'] text-[14px] font-medium transition-colors duration-200 ${
+                    active
+                      ? "bg-[#E8F5F3] text-[#0F766E]"
+                      : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+                  }`}
+                >
+                  {product.label}
+                </Link>
+              );
+            })}
+
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =====================================================
+  // OTHER NAVIGATION ITEMS
+  // =====================================================
+
+  const Icon = item.icon;
+  const active = isActive(item.href);
+
+  return (
+    <Link
+      key={item.label}
+      href={item.href}
+      onClick={() => setIsOpen(false)}
+      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
+        active
+          ? "bg-[#E8F5F3] text-[#0F766E]"
+          : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+      }`}
+    >
+      <Icon
+        size={18}
+        strokeWidth={1.7}
+        className={`shrink-0 transition-colors ${
+          active
+            ? "text-[#0F766E]"
+            : "text-[#64748B] group-hover:text-[#0F766E]"
+        }`}
+      />
+
+      <span className="flex-1">
+        {item.label}
+      </span>
+
+      {/* Number Badge */}
+      {item.badge && (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF6B6B] px-1.5 font-['Poppins'] text-[14px] font-semibold text-white">
+          {item.badge}
+        </span>
+      )}
+
+      {/* New Badge */}
+      {item.badgeText && (
+        <span className="rounded-full bg-[#0F766E] px-2 py-0.5 font-['Poppins'] text-[14px] font-semibold text-white">
+          {item.badgeText}
+        </span>
+      )}
+    </Link>
+  );
+})}
 
       </div>
     </nav>
@@ -480,39 +579,7 @@ const DashboardSidebar = () => {
           </button>
         </div>
 
-        {/* ===================================================
-            BRAND
-        ==================================================== */}
-
-        <div className="border-b border-[#E8EEEE] px-4 py-4">
-          <div className="flex items-center gap-3">
-
-            {/* Logo */}
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#0F766E]">
-              <ShoppingBag
-                size={24}
-                strokeWidth={1.8}
-                className="text-[#FF6B6B]"
-              />
-            </div>
-
-            {/* Brand Text */}
-            <div>
-              <h2 className="font-['Poppins'] text-[17px] font-bold leading-tight text-[#1E293B]">
-                Shopora
-              </h2>
-
-              <p className="font-['Poppins'] text-[14px] text-[#64748B]">
-                {userRole === "admin"
-                  ? "Admin Panel"
-                  : userRole === "seller"
-                  ? "Seller Panel"
-                  : "Smart Shopping"}
-              </p>
-            </div>
-
-          </div>
-        </div>
+      
 
         {/* ===================================================
             USER PROFILE
