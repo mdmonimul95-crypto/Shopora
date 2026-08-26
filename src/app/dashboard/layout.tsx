@@ -10,10 +10,10 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen bg-[#FCFDFD]">
-      <div className="flex min-h-screen">
+      <div className="flex-col min-h-screen">
         <DashboardSidebar />
 
-        <main className="flex-1">
+        <main className=" md:flex-1">
           {children}
         </main>
       </div>
