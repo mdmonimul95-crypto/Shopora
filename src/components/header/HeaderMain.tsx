@@ -171,12 +171,12 @@ const HeaderMain = ({
               <button
                 type="button"
                 onClick={() => setAccountOpen((prev) => !prev)}
-                className="flex items-center gap-2"
+                className=""
               >
                 {user ? (
                   <>
                     {/* Avatar */}
-                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
+                    <div className="flex-col h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
 
                       {user.image ? (
                         <Image
@@ -197,7 +197,7 @@ const HeaderMain = ({
                     </div>
 
                     {/* User Name */}
-                    <div className="hidden text-left xl:block">
+                    <div className="hidden text-left  xl:block">
                       <p className="font-['Poppins'] text-[14px] font-semibold leading-5 text-[#1E293B]">
                         {user.name || "User"}
                       </p>
@@ -222,13 +222,7 @@ const HeaderMain = ({
                   </>
                 )}
 
-                <ChevronDown
-                  size={16}
-                  strokeWidth={1.8}
-                  className={`text-[#64748B] transition-transform duration-200 ${
-                    accountOpen ? "rotate-180" : ""
-                  }`}
-                />
+                
               </button>
 
               {/* =================================================
