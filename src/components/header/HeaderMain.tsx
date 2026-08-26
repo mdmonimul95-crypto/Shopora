@@ -18,8 +18,9 @@ import {
   Settings,
 } from "lucide-react";
 
-import { authClient } from "@/app/lib/auth-client";
+
 import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
 
 interface HeaderMainProps {
   onMenuOpen: () => void;
