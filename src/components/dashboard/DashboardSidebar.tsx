@@ -1,0 +1,731 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession } from "@/app/lib/auth-client";
+
+
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Heart,
+  Ticket,
+  MapPin,
+  CreditCard,
+  Settings,
+  Bell,
+  Star,
+  Sparkles,
+  Headphones,
+  LogOut,
+  X,
+  Sidebar,
+  Package,
+  Grid2X2,
+  Users,
+  Warehouse,
+  DollarSign,
+  Wallet,
+  BarChart3,
+  Bot,
+  FileBarChart,
+  ChevronRight,
+  ChevronDown,
+} from "lucide-react";
+import Image from "next/image";
+
+/* =========================================================
+   TYPES
+========================================================= */
+
+type UserRole = "customer" | "seller" | "admin";
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  badge?: number;
+  badgeText?: string;
+}
+
+/* =========================================================
+   CUSTOMER NAVIGATION
+========================================================= */
+
+const customerNavItems: NavItem[] = [
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "My Orders",
+    href: "/dashboard/orders",
+    icon: ShoppingBag,
+  },
+  {
+    label: "Wishlist",
+    href: "/dashboard/wishlist",
+    icon: Heart,
+  },
+  {
+    label: "Coupons",
+    href: "/dashboard/coupons",
+    icon: Ticket,
+  },
+  {
+    label: "Addresses",
+    href: "/dashboard/addresses",
+    icon: MapPin,
+  },
+  {
+    label: "Payment Methods",
+    href: "/dashboard/payment-methods",
+    icon: CreditCard,
+  },
+  {
+    label: "Account Settings",
+    href: "/dashboard/settings",
+    icon: Settings,
+  },
+  {
+    label: "Notifications",
+    href: "/dashboard/notifications",
+    icon: Bell,
+    badge: 2,
+  },
+  {
+    label: "Reviews",
+    href: "/dashboard/reviews",
+    icon: Star,
+  },
+  {
+    label: "AI Recommendations",
+    href: "/dashboard/ai-recommendations",
+    icon: Sparkles,
+  },
+  {
+    label: "Help & Support",
+    href: "/dashboard/support",
+    icon: Headphones,
+  },
+];
+
+/* =========================================================
+   SELLER NAVIGATION
+========================================================= */
+
+const sellerNavItems: NavItem[] = [
+  {
+    label: "Dashboard",
+    href: "/dashboard/seller",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Products",
+    href: "/dashboard/seller/products",
+    icon: Package,
+  },
+  {
+    label: "Orders",
+    href: "/dashboard/seller/orders",
+    icon: ShoppingBag,
+    badge: 18,
+  },
+  {
+    label: "Inventory",
+    href: "/dashboard/seller/inventory",
+    icon: Warehouse,
+  },
+  {
+    label: "Coupons",
+    href: "/dashboard/seller/coupons",
+    icon: Ticket,
+  },
+  {
+    label: "Earnings",
+    href: "/dashboard/seller/earnings",
+    icon: DollarSign,
+  },
+  {
+    label: "Payouts",
+    href: "/dashboard/seller/payouts",
+    icon: Wallet,
+  },
+  {
+    label: "Reviews",
+    href: "/dashboard/seller/reviews",
+    icon: Star,
+    badge: 12,
+  },
+  {
+    label: "Analytics",
+    href: "/dashboard/seller/analytics",
+    icon: BarChart3,
+  },
+  {
+    label: "AI Tools",
+    href: "/dashboard/seller/ai-tools",
+    icon: Sparkles,
+    badgeText: "New",
+  },
+  {
+    label: "Store Settings",
+    href: "/dashboard/seller/settings",
+    icon: Settings,
+  },
+  {
+    label: "Support",
+    href: "/dashboard/seller/support",
+    icon: Headphones,
+  },
+];
+
+//Sub Menu
+const productLinks = [
+  {
+    label: "All Products",
+    href: "/dashboard/seller/products",
+  },
+  {
+    label: "Add New Product",
+    href: "/dashboard/seller/products/add",
+  },
+  {
+    label: "Categories",
+    href: "/dashboard/products/categories",
+  },
+  {
+    label: "Brands",
+    href: "/dashboard/products/brands",
+  },
+];
+
+
+
+/* =========================================================
+   ADMIN NAVIGATION
+========================================================= */
+
+const adminNavItems: NavItem[] = [
+  {
+    label: "Dashboard",
+    href: "/dashboard/admin",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Products",
+    href: "/dashboard/admin/products",
+    icon: Package,
+  },
+  {
+    label: "Categories",
+    href: "/dashboard/admin/categories",
+    icon: Grid2X2,
+  },
+  {
+    label: "Orders",
+    href: "/dashboard/admin/orders",
+    icon: ShoppingBag,
+    badge: 12,
+  },
+  {
+    label: "Customers",
+    href: "/dashboard/admin/customers",
+    icon: Users,
+  },
+  {
+    label: "Inventory",
+    href: "/dashboard/admin/inventory",
+    icon: Warehouse,
+  },
+  {
+    label: "Coupons",
+    href: "/dashboard/admin/coupons",
+    icon: Ticket,
+  },
+  {
+    label: "Reviews",
+    href: "/dashboard/admin/reviews",
+    icon: Star,
+  },
+  {
+    label: "AI Tools",
+    href: "/dashboard/admin/ai-tools",
+    icon: Sparkles,
+    badgeText: "New",
+  },
+  {
+    label: "Reports",
+    href: "/dashboard/admin/reports",
+    icon: FileBarChart,
+  },
+  {
+    label: "Notifications",
+    href: "/dashboard/admin/notifications",
+    icon: Bell,
+    badge: 5,
+  },
+  {
+    label: "Settings",
+    href: "/dashboard/admin/settings",
+    icon: Settings,
+  },
+];
+
+/* =========================================================
+   ROLE BASED NAVIGATION MAP
+========================================================= */
+
+const navItemsMap: Record<UserRole, NavItem[]> = {
+  customer: customerNavItems,
+  seller: sellerNavItems,
+  admin: adminNavItems,
+};
+
+/* =========================================================
+   DASHBOARD SIDEBAR
+========================================================= */
+
+const DashboardSidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const pathname = usePathname();
+  const [isProductsOpen, setIsProductsOpen] = useState(
+  pathname.startsWith("/dashboard/products")
+)
+
+
+
+  const { data: session, isPending } = useSession();
+
+  /* =======================================================
+     USER DATA
+  ======================================================== */
+
+  const user = session?.user;
+
+  const userRole: UserRole =
+    ((user as { role?: UserRole } | undefined)?.role as UserRole) ??
+    "seller";
+
+  const navItems = navItemsMap[userRole];
+
+  /* =======================================================
+     USER NAME
+  ======================================================== */
+
+  const userName = user?.name || "John Smith";
+
+  const userEmail =
+    user?.email || "john.smith@email.com";
+
+  /* =======================================================
+     USER INITIAL
+  ======================================================== */
+
+  const userInitials = userName
+    .split(" ")
+    .map((name) => name.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  /* =======================================================
+     ACTIVE LINK
+  ======================================================== */
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+
+    if (href === "/dashboard/seller") {
+      return pathname === "/dashboard/seller";
+    }
+
+    if (href === "/dashboard/admin") {
+      return pathname === "/dashboard/admin";
+    }
+
+    return pathname.startsWith(href);
+  };
+
+  /* =======================================================
+     ROLE LABEL
+  ======================================================== */
+
+  const roleLabel =
+    userRole === "admin"
+      ? "Super Admin"
+      : userRole === "seller"
+      ? "Verified Seller"
+      : "Verified Customer";
+
+  /* =======================================================
+     LOADING
+  ======================================================== */
+
+  if (isPending) {
+    return (
+      <aside className="hidden w-64 shrink-0 border-r border-[#E8EEEE] bg-white lg:block">
+        <div className="flex h-screen items-center justify-center">
+          <p className="font-['Poppins'] text-[14px] text-[#64748B]">
+            Loading...
+          </p>
+        </div>
+      </aside>
+    );
+  }
+
+  /* =======================================================
+     NAVIGATION CONTENT
+  ======================================================== */
+
+  const navigationContent = (
+    <nav className="px-3 py-4">
+      <div className="space-y-1">
+
+        {navItems.map((item) => {
+
+  // =====================================================
+  // PRODUCTS DROPDOWN
+  // =====================================================
+
+  if (
+    userRole === "seller" &&
+    item.label === "Products"
+  ) {
+    return (
+      <div key={item.label}>
+
+        {/* Products Button */}
+        <button
+          type="button"
+          onClick={() =>
+            setIsProductsOpen((prev) => !prev)
+          }
+          className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
+            pathname.startsWith("/dashboard/seller/products")
+              ? "bg-[#E8F5F3] text-[#0F766E]"
+              : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+          }`}
+        >
+          <Package
+            size={18}
+            strokeWidth={1.8}
+          />
+
+          <span className="flex-1 text-left">
+            Products
+          </span>
+
+          <ChevronDown
+            size={16}
+            strokeWidth={1.8}
+            className={`transition-transform duration-200 ${
+              isProductsOpen
+                ? "rotate-180"
+                : ""
+            }`}
+          />
+        </button>
+
+        {/* Products Dropdown */}
+        {isProductsOpen && (
+          <div className="relative ml-4 mt-1 space-y-1 border-l border-[#DDE8E7] pl-3">
+
+            {productLinks.map((product) => {
+              const active = isActive(
+                product.href
+              );
+
+              return (
+                <Link
+                  key={product.href}
+                  href={product.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block rounded-md px-3 py-2 font-['Poppins'] text-[14px] font-medium transition-colors duration-200 ${
+                    active
+                      ? "bg-[#E8F5F3] text-[#0F766E]"
+                      : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+                  }`}
+                >
+                  {product.label}
+                </Link>
+              );
+            })}
+
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =====================================================
+  // OTHER NAVIGATION ITEMS
+  // =====================================================
+
+  const Icon = item.icon;
+  const active = isActive(item.href);
+
+  return (
+    <Link
+      key={item.label}
+      href={item.href}
+      onClick={() => setIsOpen(false)}
+      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
+        active
+          ? "bg-[#E8F5F3] text-[#0F766E]"
+          : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+      }`}
+    >
+      <Icon
+        size={18}
+        strokeWidth={1.7}
+        className={`shrink-0 transition-colors ${
+          active
+            ? "text-[#0F766E]"
+            : "text-[#64748B] group-hover:text-[#0F766E]"
+        }`}
+      />
+
+      <span className="flex-1">
+        {item.label}
+      </span>
+
+      {/* Number Badge */}
+      {item.badge && (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF6B6B] px-1.5 font-['Poppins'] text-[14px] font-semibold text-white">
+          {item.badge}
+        </span>
+      )}
+
+      {/* New Badge */}
+      {item.badgeText && (
+        <span className="rounded-full bg-[#0F766E] px-2 py-0.5 font-['Poppins'] text-[14px] font-semibold text-white">
+          {item.badgeText}
+        </span>
+      )}
+    </Link>
+  );
+})}
+
+      </div>
+    </nav>
+  );
+
+  return (
+    <>
+      {/* =====================================================
+          MOBILE MENU BUTTON
+      ====================================================== */}
+
+      <div className="w-full border-b border-[#E8EEEE] bg-white lg:hidden">
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="flex w-full items-center gap-3 px-4 py-3 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-all duration-200 hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+        >
+          <Sidebar
+            size={19}
+            strokeWidth={1.8}
+          />
+
+          <span>
+            Menu
+          </span>
+        </button>
+      </div>
+
+      {/* =====================================================
+          MOBILE OVERLAY
+      ====================================================== */}
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* =====================================================
+          SIDEBAR
+      ====================================================== */}
+
+      <aside
+        className={`fixed left-0 top-0 z-50 h-screen w-72 border-r border-[#E8EEEE] bg-white transition-transform duration-300 ease-in-out ${
+          isOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
+        } lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-64 lg:translate-x-0`}
+      >
+
+        {/* ===================================================
+            MOBILE CLOSE BUTTON
+        ==================================================== */}
+
+        <div className="flex items-center justify-end border-b border-[#E8EEEE] px-4 py-3 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] transition-all hover:bg-[#FFF5F5] hover:text-[#FF6B6B]"
+          >
+            <X
+              size={20}
+              strokeWidth={1.8}
+            />
+          </button>
+        </div>
+
+      
+
+        {/* ===================================================
+            USER PROFILE
+        ==================================================== */}
+
+        <div className="border-b border-[#E8EEEE] px-4 py-4">
+          <div className="flex items-center gap-3">
+
+            {/* Avatar */}
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
+              {user?.image ? (
+                <Image
+                  src={user.image}
+                  alt={userName}
+                  className="h-full w-full object-cover"
+                  height={512}
+                  width={512}
+                />
+              ) : (
+                <span className="font-['Poppins'] text-[14px] font-semibold text-[#0F766E]">
+                  {userInitials}
+                </span>
+              )}
+            </div>
+
+            {/* User Info */}
+            <div className="min-w-0 flex-1">
+
+              <h3 className="truncate font-['Poppins'] text-[14px] font-semibold text-[#1E293B]">
+                {userName}
+              </h3>
+
+              <p className="truncate font-['Poppins'] text-[14px] text-[#64748B]">
+                {userEmail}
+              </p>
+
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#E8F5F3] px-2 py-0.5 font-['Poppins'] text-[14px] font-medium text-[#0F766E]">
+                ✓ {roleLabel}
+              </span>
+
+            </div>
+
+          </div>
+        </div>
+
+        {/* ===================================================
+            NAVIGATION
+        ==================================================== */}
+
+        <div className="h-[calc(100vh-235px)] overflow-y-auto">
+          {navigationContent}
+        </div>
+
+        {/* ===================================================
+            SELLER AI ASSISTANT
+        ==================================================== */}
+
+        {userRole === "seller" && (
+          <div className="border-t border-[#E8EEEE] p-3">
+
+            <div className="rounded-xl border border-[#E8EEEE] bg-[#F6FAF9] p-3">
+
+              <div className="flex items-start gap-3">
+
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
+                  <Bot
+                    size={22}
+                    className="text-[#0F766E]"
+                  />
+                </div>
+
+                <div className="min-w-0">
+
+                  <h4 className="font-['Poppins'] text-[14px] font-semibold text-[#0F766E]">
+                    Shopora AI Assistant
+                  </h4>
+
+                  <p className="mt-1 font-['Poppins'] text-[14px] leading-5 text-[#64748B]">
+                    Generate product descriptions, tags, and optimize your listings using AI.
+                  </p>
+
+                </div>
+
+              </div>
+
+              <Link
+                href="/dashboard/seller/ai-tools"
+                onClick={() => setIsOpen(false)}
+                className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-[#0F766E] bg-white px-3 py-2 font-['Poppins'] text-[14px] font-medium text-[#0F766E] transition-all hover:bg-[#0F766E] hover:text-white"
+              >
+                Open Assistant
+                <ChevronRight size={16} />
+              </Link>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ===================================================
+            ADMIN / CUSTOMER / SELLER SETTINGS + LOGOUT
+        ==================================================== */}
+
+        <div className="border-t border-[#E8EEEE] bg-white px-3 py-3">
+
+          {userRole !== "customer" && (
+            <Link
+              href={
+                userRole === "seller"
+                  ? "/dashboard/seller/settings"
+                  : "/dashboard/admin/settings"
+              }
+              onClick={() => setIsOpen(false)}
+              className="group mb-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-all hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+            >
+              <Settings
+                size={18}
+                strokeWidth={1.7}
+                className="text-[#64748B] group-hover:text-[#0F766E]"
+              />
+
+              Settings
+            </Link>
+          )}
+
+          {/* Logout */}
+          <button
+            type="button"
+            className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-all hover:bg-[#FFF5F5] hover:text-[#FF6B6B]"
+          >
+            <LogOut
+              size={18}
+              strokeWidth={1.7}
+              className="text-[#64748B] group-hover:text-[#FF6B6B]"
+            />
+
+            <span>
+              Logout
+            </span>
+          </button>
+
+        </div>
+
+      </aside>
+    </>
+  );
+};
+
+export default DashboardSidebar;
