@@ -40,6 +40,8 @@ const HeaderMain = ({
 
   const user = session?.user;
 
+  const dashboardPath = user?.role === "Seller" ? "/dashboard/seller" : user?.role === "Admin" ? "/dashboard/admin" : "/dashboard/customer"
+
   return (
     <>
       {/* =====================================================
@@ -84,11 +86,11 @@ const HeaderMain = ({
             <input
               type="text"
               placeholder="Search for products, brands and more..."
-              className="min-w-0 flex-1 bg-transparent px-4 font-['Poppins'] text-[10px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
+              className="min-w-0 flex-1 bg-transparent px-4 font-['Poppins'] text-[14px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
             />
 
             {/* All Categories */}
-            <button
+            {/* <button
               type="button"
               onClick={onCategoryToggle}
               className="hidden items-center gap-1 border-l border-[#E8EEEE] px-4 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-colors hover:text-[#0F766E] xl:flex"
@@ -102,7 +104,7 @@ const HeaderMain = ({
               >
                 ↓
               </span>
-            </button>
+            </button> */}
 
             {/* Search */}
             <button
@@ -150,7 +152,7 @@ const HeaderMain = ({
                   className="text-[#475569] transition-colors group-hover:text-[#0F766E]"
                 />
 
-                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6B6B] font-['Poppins'] text-[7px] font-semibold text-white">
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6B6B] font-['Poppins'] text-[11px] font-semibold text-white">
                   3
                 </span>
               </div>
@@ -177,7 +179,7 @@ const HeaderMain = ({
                 {user ? (
                   <>
                     {/* Avatar */}
-                    <div className="flex-col h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
+                    <div className="flex flex-col h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
 
                       {user.image ? (
                         <Image
@@ -189,7 +191,7 @@ const HeaderMain = ({
                         />
                       ) : (
                         <UserRound
-                          size={21}
+                          size={30}
                           strokeWidth={1.7}
                           className="text-[#0F766E]"
                         />
@@ -237,6 +239,8 @@ const HeaderMain = ({
                 }`}
               >
 
+              
+
                 {user ? (
                   <>
                     {/* Logged In Header */}
@@ -253,8 +257,9 @@ const HeaderMain = ({
                     </div>
 
                     {/* Dashboard */}
+                  
                     <Link
-                      href="/dashboard"
+                      href={dashboardPath}
                       className="mt-2 flex w-full items-center gap-3 rounded-lg bg-[#E8F5F3] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#1E293B] transition-colors hover:bg-[#D9EFEC]"
                     >
                       <LayoutDashboard

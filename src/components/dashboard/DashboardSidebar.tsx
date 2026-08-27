@@ -39,7 +39,7 @@ import Image from "next/image";
    TYPES
 ========================================================= */
 
-type UserRole = "customer" | "seller" | "admin";
+type UserRole = "customer" | "Seller" | "admin";
 
 interface NavItem {
   label: string;
@@ -60,7 +60,7 @@ const customerNavItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    label: "My Orders",
+    label: "My Orders - customer",
     href: "/dashboard/orders",
     icon: ShoppingBag,
   },
@@ -182,25 +182,25 @@ const sellerNavItems: NavItem[] = [
   },
 ];
 
-//Sub Menu
-const productLinks = [
-  {
-    label: "All Products",
-    href: "/dashboard/seller/products",
-  },
-  {
-    label: "Add New Product",
-    href: "/dashboard/seller/products/add",
-  },
-  {
-    label: "Categories",
-    href: "/dashboard/products/categories",
-  },
-  {
-    label: "Brands",
-    href: "/dashboard/products/brands",
-  },
-];
+      //Sub Menu
+      const productLinks = [
+        {
+          label: "All Products",
+          href: "/dashboard/seller/products",
+        },
+        {
+          label: "Add New Product",
+          href: "/dashboard/seller/products/add",
+        },
+        {
+          label: "Categories",
+          href: "/dashboard/products/categories",
+        },
+        {
+          label: "Brands",
+          href: "/dashboard/products/brands",
+        },
+      ];
 
 
 
@@ -275,16 +275,6 @@ const adminNavItems: NavItem[] = [
 ];
 
 /* =========================================================
-   ROLE BASED NAVIGATION MAP
-========================================================= */
-
-const navItemsMap: Record<UserRole, NavItem[]> = {
-  customer: customerNavItems,
-  seller: sellerNavItems,
-  admin: adminNavItems,
-};
-
-/* =========================================================
    DASHBOARD SIDEBAR
 ========================================================= */
 
@@ -296,9 +286,8 @@ const DashboardSidebar = () => {
   pathname.startsWith("/dashboard/products")
 )
 
-
-
   const { data: session, isPending } = useSession();
+
 
   /* =======================================================
      USER DATA
@@ -308,10 +297,16 @@ const DashboardSidebar = () => {
 
   const userRole: UserRole =
     ((user as { role?: UserRole } | undefined)?.role as UserRole) ??
-    "seller";
+    "Seller";
+    
 
-  const navItems = navItemsMap[userRole];
-
+  const navLinksMap = {
+  customer: customerNavItems,
+  Seller: sellerNavItems,
+  admin: adminNavItems,
+};
+  const navItems = navLinksMap[userRole] ?? customerNavItems;
+ 
   /* =======================================================
      USER NAME
   ======================================================== */
@@ -357,11 +352,7 @@ const DashboardSidebar = () => {
   ======================================================== */
 
   const roleLabel =
-    userRole === "admin"
-      ? "Super Admin"
-      : userRole === "seller"
-      ? "Verified Seller"
-      : "Verified Customer";
+    userRole === "admin" ? "Super Admin" : userRole === "Seller" ? "Verified Seller" : "Verified Customer";
 
   /* =======================================================
      LOADING
@@ -379,6 +370,7 @@ const DashboardSidebar = () => {
     );
   }
 
+ 
   /* =======================================================
      NAVIGATION CONTENT
   ======================================================== */
@@ -394,7 +386,7 @@ const DashboardSidebar = () => {
   // =====================================================
 
   if (
-    userRole === "seller" &&
+    userRole === "Seller" &&
     item.label === "Products"
   ) {
     return (
@@ -637,7 +629,7 @@ const DashboardSidebar = () => {
             SELLER AI ASSISTANT
         ==================================================== */}
 
-        {userRole === "seller" && (
+        {userRole === "Seller" && (
           <div className="border-t border-[#E8EEEE] p-3">
 
             <div className="rounded-xl border border-[#E8EEEE] bg-[#F6FAF9] p-3">
@@ -688,7 +680,7 @@ const DashboardSidebar = () => {
           {userRole !== "customer" && (
             <Link
               href={
-                userRole === "seller"
+                userRole === "Seller"
                   ? "/dashboard/seller/settings"
                   : "/dashboard/admin/settings"
               }
