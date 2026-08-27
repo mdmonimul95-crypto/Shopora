@@ -13,6 +13,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState<"Customer" | "Seller">("Customer");
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -78,29 +79,17 @@ const Register = () => {
     try {
       setLoading(true);
 
-      console.log("Registering user:", {
-        name,
-        email,
-      });
 
-      // --------------------------------
-      // Better Auth registration
-      // --------------------------------
 
       const { data, error } =
         await authClient.signUp.email({
           name,
           email,
           password,
+          role
         });
 
-      console.log("Register response:", data);
-      console.log("Register error:", error);
-
-      // --------------------------------
-      // Better Auth error
-      // --------------------------------
-
+    
       if (error) {
         toast.error(
           error.message || "Unable to create account"
@@ -109,20 +98,15 @@ const Register = () => {
         return;
       }
 
-      // --------------------------------
-      // Success
-      // --------------------------------
 
       toast.success(
         "Account created successfully!"
       );
 
-      // --------------------------------
-      // Redirect to login
-      // --------------------------------
+      
 
       setTimeout(() => {
-        window.location.href = "/auth/login";
+        window.location.href = "/";
       }, 1500);
     } catch (error) {
       console.error(
@@ -176,26 +160,48 @@ const Register = () => {
 
               {/* Account Type */}
 
-              <div>
-                <label className="mb-3 block font-['Poppins'] text-sm font-semibold text-[#1E293B]">
-                  Account Type
-                </label>
+              <div className="grid grid-cols-2 gap-4">
 
-                <div className="flex items-center gap-3 rounded-lg border border-[#0F766E] bg-[#F0F9F7] px-4 py-3 text-[#0F766E]">
-
+                {/* Customer */}
+                <button
+                  type="button"
+                  onClick={() => setRole("Customer")}
+                  className={`rounded-lg border px-4 py-4 text-left transition ${role === "Customer"
+                      ? "border-[#0F766E] bg-[#F0F9F7] text-[#0F766E]"
+                      : "border-[#CBD5E1] bg-white text-[#64748B]"
+                    }`}
+                >
                   <UserRound size={21} />
 
-                  <div>
-                    <p className="font-['Poppins'] text-sm font-semibold">
-                      Customer
-                    </p>
+                  <p className="mt-2 font-['Poppins'] text-sm font-semibold">
+                    Customer
+                  </p>
 
-                    <p className="font-['Poppins'] text-xs text-[#64748B]">
-                      Standard Shopora account
-                    </p>
-                  </div>
+                  <p className="mt-1 font-['Poppins'] text-xs text-[#64748B]">
+                    Standard Shopora account
+                  </p>
+                </button>
 
-                </div>
+                {/* Seller */}
+                <button
+                  type="button"
+                  onClick={() => setRole("Seller")}
+                  className={`rounded-lg border px-4 py-4 text-left transition ${role === "Seller"
+                      ? "border-[#0F766E] bg-[#F0F9F7] text-[#0F766E]"
+                      : "border-[#CBD5E1] bg-white text-[#64748B]"
+                    }`}
+                >
+                  <UserRound size={21} />
+
+                  <p className="mt-2 font-['Poppins'] text-sm font-semibold">
+                    Seller
+                  </p>
+
+                  <p className="mt-1 font-['Poppins'] text-xs text-[#64748B]">
+                    Standard Seller account
+                  </p>
+                </button>
+
               </div>
 
               {/* Name */}
