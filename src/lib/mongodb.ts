@@ -1,17 +1,17 @@
-import dns from "node:dns";
+// import dns from "node:dns";
 
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-import { MongoClient } from "mongodb";
+// import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI;
+// const uri = process.env.MONGODB_URI;
 
-if (!uri) {
-  throw new Error("MONGODB_URI is not defined");
-}
+// if (!uri) {
+//   throw new Error("MONGODB_URI is not defined");
+// }
 
-const client = new MongoClient(uri);
+// const client = new MongoClient(uri);
 
-const clientPromise = client.connect();
+// const clientPromise = client.connect();
 
-export default clientPromise;
+// export default clientPromise;

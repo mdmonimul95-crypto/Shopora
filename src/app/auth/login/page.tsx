@@ -6,80 +6,94 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Eye, EyeOff } from "lucide-react";
 
-import { authClient } from "@/app/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+  e: React.FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
+  const formData = new FormData(e.currentTarget);
 
-    const email = String(formData.get("email") || "").trim();
-    const password = String(formData.get("password") || "");
+  const email = String(
+    formData.get("email") || ""
+  ).trim();
 
-    // Required fields
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
+  const password = String(
+    formData.get("password") || ""
+  );
+
+  const remember =
+    formData.get("remember") === "on";
+
+  // Required fields
+  if (!email || !password) {
+    toast.error("Please fill in all fields");
+    return;
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    toast.error("Please enter a valid email address");
+    return;
+  }
+
+  // Password validation
+  if (password.length < 6) {
+    toast.error(
+      "Password must be at least 6 characters"
+    );
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    console.log("Login attempt:", {
+      email,
+      remember,
+    });
+
+    const { data, error } = await authClient.signIn.email({
+  email,
+  password,
+  rememberMe: remember,
+});
+
+    console.log("Login response:", data);
+    console.log("Login error:", error);
+
+    if (error) {
+      toast.error(
+        error.message || "Invalid email or password"
+      );
       return;
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    toast.success("Login successful!");
 
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 1000);
+  } catch (error) {
+    console.error("Login error:", error);
 
-    // Password validation
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      console.log("Login Data:", {
-        email,
-        password,
-      });
-
-      const { data, error } =
-        await authClient.signIn.email({
-          email,
-          password,
-          callbackURL: "/",
-        });
-
-      console.log("Login data:", data);
-      console.log("Login error:", error);
-
-      if (error) {
-        toast.error(
-          error.message || "Invalid email or password"
-        );
-        return;
-      }
-
-      toast.success("Login successful!");
-
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    toast.error(
+      "Unable to connect to the authentication server"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
-      {/* Toast */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -100,7 +114,8 @@ const Login = () => {
             </h1>
 
             <p className="mt-2 font-['Poppins'] text-sm text-[#64748B]">
-              Login to your Shopora account and continue shopping.
+              Login to your Shopora account and continue
+              shopping.
             </p>
           </div>
 
@@ -127,13 +142,14 @@ const Login = () => {
                   type="email"
                   placeholder="Enter your email"
                   autoComplete="email"
-                  className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                  className="h-12 text-black w-full rounded-lg border border-[#CBD5E1] px-4 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                 />
               </div>
 
               {/* Password */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
+
                   <label
                     htmlFor="password"
                     className="block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
@@ -147,22 +163,30 @@ const Login = () => {
                   >
                     Forgot Password?
                   </Link>
+
                 </div>
 
                 <div className="relative">
+
                   <input
                     id="password"
                     name="password"
-                    type={showPassword ? "text" : "password"}
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
                     placeholder="Enter your password"
                     autoComplete="current-password"
-                    className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 pr-12 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                    className="h-12 text-black w-full rounded-lg border border-[#CBD5E1] px-4 pr-12 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                   />
 
                   <button
                     type="button"
                     onClick={() =>
-                      setShowPassword((prev) => !prev)
+                      setShowPassword(
+                        (prev) => !prev
+                      )
                     }
                     aria-label={
                       showPassword
@@ -177,11 +201,13 @@ const Login = () => {
                       <Eye size={18} />
                     )}
                   </button>
+
                 </div>
               </div>
 
               {/* Remember Me */}
               <div className="flex items-center gap-2">
+
                 <input
                   id="remember"
                   name="remember"
@@ -195,6 +221,7 @@ const Login = () => {
                 >
                   Remember me
                 </label>
+
               </div>
 
               {/* Submit */}
@@ -203,14 +230,16 @@ const Login = () => {
                 disabled={loading}
                 className="h-12 w-full rounded-lg bg-[#0F766E] font-['Poppins'] text-sm font-semibold text-white transition hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading
+                  ? "Logging in..."
+                  : "Login"}
               </button>
 
             </form>
 
             {/* Register */}
             <p className="mt-6 text-center font-['Poppins'] text-sm text-[#64748B]">
-              Dont have an account?{" "}
+              Don&apos;t have an account?{" "}
 
               <Link
                 href="/auth/register"

@@ -2,16 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Eye, EyeOff, UserRound } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Eye, EyeOff, UserRound, Store, Shield } from "lucide-react";
-import { authClient } from "@/app/lib/auth-client";
-import { RegisterUser } from "@/type/auth";
 
-type UserRole = "Customer" | "Seller" | "Admin";
+import { authClient } from "@/lib/auth-client";
 
 const Register = () => {
-  const [role, setRole] = useState<UserRole>("Customer");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
@@ -24,85 +21,118 @@ const Register = () => {
 
     const formData = new FormData(e.currentTarget);
 
-    const user = Object.fromEntries(
-      formData.entries()
-    ) as unknown as RegisterUser;
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
+    const confirmPassword = String(
+      formData.get("confirmPassword") || ""
+    );
 
+    // --------------------------------
     // Required fields
-    if (
-      !user.name ||
-      !user.email ||
-      !user.password ||
-      !user.confirmPassword
-    ) {
+    // --------------------------------
+
+    if (!name || !email || !password || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
     }
 
+    // --------------------------------
     // Name validation
-    if (user.name.trim().length < 3) {
+    // --------------------------------
+
+    if (name.length < 3) {
       toast.error("Name must be at least 3 characters");
       return;
     }
 
+    // --------------------------------
     // Email validation
+    // --------------------------------
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(user.email)) {
+    if (!emailRegex.test(email)) {
       toast.error("Please enter a valid email address");
       return;
     }
 
+    // --------------------------------
     // Password validation
-    if (user.password.length < 6) {
+    // --------------------------------
+
+    if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
     }
 
+    // --------------------------------
     // Confirm password
-    if (user.password !== user.confirmPassword) {
-      toast.error("Password does not match");
-      return;
-    }
+    // --------------------------------
 
-    // Role validation
-    if (!role) {
-      toast.error("Please select an account type");
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
       return;
     }
 
     try {
       setLoading(true);
 
-      const registerData = {
-        name: user.name.trim(),
-        email: user.email.trim(),
-        password: user.password,
-        role,
-      };
+      console.log("Registering user:", {
+        name,
+        email,
+      });
 
-      console.log("Register Data:", registerData);
+      // --------------------------------
+      // Better Auth registration
+      // --------------------------------
 
       const { data, error } =
         await authClient.signUp.email({
-          name: registerData.name,
-          email: registerData.email,
-          password: registerData.password,
-          callbackURL: "/",
+          name,
+          email,
+          password,
         });
 
-      console.log("Signup data:", data);
-      console.log("Signup error:", error);
+      console.log("Register response:", data);
+      console.log("Register error:", error);
+
+      // --------------------------------
+      // Better Auth error
+      // --------------------------------
 
       if (error) {
-        toast.error("Account could not be created");
+        toast.error(
+          error.message || "Unable to create account"
+        );
+
         return;
       }
 
-      toast.success("Account created successfully");
+      // --------------------------------
+      // Success
+      // --------------------------------
+
+      toast.success(
+        "Account created successfully!"
+      );
+
+      // --------------------------------
+      // Redirect to login
+      // --------------------------------
+
+      setTimeout(() => {
+        window.location.href = "/auth/login";
+      }, 1500);
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
+      console.error(
+        "Registration error:",
+        error
+      );
+
+      toast.error(
+        "Unable to connect to authentication service"
+      );
     } finally {
       setLoading(false);
     }
@@ -110,240 +140,239 @@ const Register = () => {
 
   return (
     <>
- <ToastContainer
-      position="top-right"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop
-      closeOnClick
-      pauseOnHover
-      draggable
-    />
-    <section className="bg-white px-4 py-15 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-md">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
 
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="font-['Poppins'] text-3xl font-bold text-[#1E293B]">
-            Create Account
-          </h1>
+      <section className="bg-white px-4 py-15 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md">
 
-          <p className="mt-2 font-['Poppins'] text-sm text-[#64748B]">
-            Create your Shopora account and start shopping.
-          </p>
-        </div>
+          {/* Header */}
 
-        {/* Form Card */}
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-[0_8px_30px_rgba(15,118,110,0.08)] sm:p-8">
+          <div className="mb-8 text-center">
+            <h1 className="font-['Poppins'] text-3xl font-bold text-[#1E293B]">
+              Create Account
+            </h1>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
+            <p className="mt-2 font-['Poppins'] text-sm text-[#64748B]">
+              Create your Shopora account and start shopping.
+            </p>
+          </div>
 
-            {/* Role */}
-            <div>
-              <label className="mb-3 block font-['Poppins'] text-sm font-semibold text-[#1E293B]">
-                Account Type
-              </label>
+          {/* Form Card */}
 
-              <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-[0_8px_30px_rgba(15,118,110,0.08)] sm:p-8">
 
-                {/* Customer */}
-                <button
-                  type="button"
-                  onClick={() => setRole("Customer")}
-                  className={`flex flex-col items-center justify-center rounded-lg border px-2 py-3 transition ${
-                    role === "Customer"
-                      ? "border-[#0F766E] bg-[#F0F9F7] text-[#0F766E]"
-                      : "border-[#E2E8F0] text-[#64748B] hover:border-[#0F766E]"
-                  }`}
-                >
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
+
+              {/* Account Type */}
+
+              <div>
+                <label className="mb-3 block font-['Poppins'] text-sm font-semibold text-[#1E293B]">
+                  Account Type
+                </label>
+
+                <div className="flex items-center gap-3 rounded-lg border border-[#0F766E] bg-[#F0F9F7] px-4 py-3 text-[#0F766E]">
+
                   <UserRound size={21} />
 
-                  <span className="mt-1 font-['Poppins'] text-xs font-semibold">
-                    Customer
-                  </span>
-                </button>
+                  <div>
+                    <p className="font-['Poppins'] text-sm font-semibold">
+                      Customer
+                    </p>
 
-                {/* Seller */}
-                <button
-                  type="button"
-                  onClick={() => setRole("Seller")}
-                  className={`flex flex-col items-center justify-center rounded-lg border px-2 py-3 transition ${
-                    role === "Seller"
-                      ? "border-[#0F766E] bg-[#F0F9F7] text-[#0F766E]"
-                      : "border-[#E2E8F0] text-[#64748B] hover:border-[#0F766E]"
-                  }`}
-                >
-                  <Store size={21} />
+                    <p className="font-['Poppins'] text-xs text-[#64748B]">
+                      Standard Shopora account
+                    </p>
+                  </div>
 
-                  <span className="mt-1 font-['Poppins'] text-xs font-semibold">
-                    Seller
-                  </span>
-                </button>
-
-                {/* Admin */}
-                <button
-                  type="button"
-                  onClick={() => setRole("Admin")}
-                  className={`flex flex-col items-center justify-center rounded-lg border px-2 py-3 transition ${
-                    role === "Admin"
-                      ? "border-[#0F766E] bg-[#F0F9F7] text-[#0F766E]"
-                      : "border-[#E2E8F0] text-[#64748B] hover:border-[#0F766E]"
-                  }`}
-                >
-                  <Shield size={21} />
-
-                  <span className="mt-1 font-['Poppins'] text-xs font-semibold">
-                    Admin
-                  </span>
-                </button>
-
+                </div>
               </div>
-            </div>
 
-            {/* Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
-              >
-                Full Name
-              </label>
+              {/* Name */}
 
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Enter your full name"
-                className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
+                >
+                  Full Name
+                </label>
 
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
-              >
-                Email Address
-              </label>
-
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
-              >
-                Password
-              </label>
-
-              <div className="relative">
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 pr-12 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  autoComplete="name"
+                  disabled={loading}
+                  className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 font-['Poppins'] text-sm text-black outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowPassword((prev) => !prev)
-                  }
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]"
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
               </div>
-            </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
-              >
-                Confirm Password
-              </label>
+              {/* Email */}
 
-              <div className="relative">
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
+                >
+                  Email Address
+                </label>
+
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={
-                    showConfirmPassword
-                      ? "text"
-                      : "password"
-                  }
-                  placeholder="Confirm your password"
-                  className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 pr-12 font-['Poppins'] text-sm outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  disabled={loading}
+                  className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 font-['Poppins'] text-sm text-black outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 disabled:cursor-not-allowed disabled:bg-gray-50"
                 />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(
-                      (prev) => !prev
-                    )
-                  }
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B]"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
               </div>
-            </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="h-12 w-full rounded-lg bg-[#0F766E] font-['Poppins'] text-sm font-semibold text-white transition hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading
-                ? "Creating Account..."
-                : "Create Account"}
-            </button>
+              {/* Password */}
 
-          </form>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
+                >
+                  Password
+                </label>
 
-          {/* Login */}
-          <p className="mt-6 text-center font-['Poppins'] text-sm text-[#64748B]">
-            Already have an account?{" "}
+                <div className="relative">
 
-            <Link
-              href="/auth/login"
-              className="font-semibold text-[#0F766E] hover:text-[#FF6B6B]"
-            >
-              Login
-            </Link>
-          </p>
+                  <input
+                    id="password"
+                    name="password"
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
+                    placeholder="Enter your password"
+                    autoComplete="new-password"
+                    disabled={loading}
+                    className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 pr-12 font-['Poppins'] text-sm text-black outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 disabled:cursor-not-allowed disabled:bg-gray-50"
+                  />
 
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() =>
+                      setShowPassword(
+                        (prev) => !prev
+                      )
+                    }
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#0F766E]"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-2 block font-['Poppins'] text-sm font-semibold text-[#1E293B]"
+                >
+                  Confirm Password
+                </label>
+
+                <div className="relative">
+
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={
+                      showConfirmPassword
+                        ? "text"
+                        : "password"
+                    }
+                    placeholder="Confirm your password"
+                    autoComplete="new-password"
+                    disabled={loading}
+                    className="h-12 w-full rounded-lg border border-[#CBD5E1] px-4 pr-12 font-['Poppins'] text-sm text-black outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 disabled:cursor-not-allowed disabled:bg-gray-50"
+                  />
+
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() =>
+                      setShowConfirmPassword(
+                        (prev) => !prev
+                      )
+                    }
+                    aria-label={
+                      showConfirmPassword
+                        ? "Hide confirm password"
+                        : "Show confirm password"
+                    }
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#0F766E]"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+
+                </div>
+              </div>
+
+              {/* Submit */}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="h-12 w-full rounded-lg bg-[#0F766E] font-['Poppins'] text-sm font-semibold text-white transition hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading
+                  ? "Creating Account..."
+                  : "Create Account"}
+              </button>
+
+            </form>
+
+            {/* Login */}
+
+            <p className="mt-6 text-center font-['Poppins'] text-sm text-[#64748B]">
+              Already have an account?{" "}
+
+              <Link
+                href="/auth/login"
+                className="font-semibold text-[#0F766E] hover:text-[#FF6B6B]"
+              >
+                Login
+              </Link>
+            </p>
+
+          </div>
         </div>
-      </div>
-    </section>
-
+      </section>
     </>
-    
   );
 };
 
