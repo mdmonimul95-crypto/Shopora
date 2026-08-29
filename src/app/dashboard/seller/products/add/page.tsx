@@ -2,20 +2,21 @@
 
 import React, { useState } from "react";
 import {
-  ArrowLeft,
+ 
   Check,
   ChevronDown,
   ImagePlus,
-  Info,
   Link as LinkIcon,
-  Package,
-  Plus,
   Save,
   Sparkles,
   Upload,
   X,
 } from "lucide-react";
 import Image from "next/image";
+import { createProduct } from "@/lib/actions/products";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 /* =========================================================
    TYPES
@@ -37,50 +38,94 @@ const initialImages: ProductImage[] = [];
 ========================================================= */
 
 const AddNewProduct = () => {
+  const router = useRouter();
+
   /* =======================================================
      STATE
   ======================================================== */
 
-  const [images, setImages] =
-    useState<ProductImage[]>(initialImages);
+  const [formData, setFormData] = useState({
+  name: "",
+  sku: "",
+  category: "",
+  brand: "",
+  shortDescription: "",
+  regularPrice: "",
+  salePrice: "",
+  stockQuantity: "",
+  lowStockAlert: "",
+  stockStatus: "IN_STOCK",
+  description: "",
+});
 
-  const [productStatus, setProductStatus] =
-    useState("published");
+  const [images, setImages] = useState<ProductImage[]>(initialImages);
 
-  const [productType, setProductType] =
-    useState("physical");
+  const [productStatus, setProductStatus] = useState("published");
 
-  const [stockStatus, setStockStatus] =
-    useState("in-stock");
+  const [productType, setProductType] = useState("physical");
 
-  const [isDigital, setIsDigital] =
-    useState(false);
+  const [stockStatus, setStockStatus] = useState("in-stock");
+
+  // const [isDigital, setIsDigital] =
+  //   useState(false);
 
   /* =======================================================
      IMAGE UPLOAD
   ======================================================== */
 
-  const handleImageUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = event.target.files;
+ const handleImageUpload = async (
+  event: React.ChangeEvent<HTMLInputElement>
+) => {
+  const files = event.target.files;
 
-    if (!files) return;
+  if (!files) return;
 
-    const selectedFiles = Array.from(files);
+  const selectedFiles = Array.from(files).slice(
+    0,
+    8 - images.length
+  );
 
-    const newImages = selectedFiles.map(
-      (file, index) => ({
-        id: Date.now() + index,
-        url: URL.createObjectURL(file),
-      })
-    );
+  try {
+    const uploadedImages: ProductImage[] = [];
+
+    for (const file of selectedFiles) {
+      const formData = new FormData();
+
+      formData.append(
+        "key",
+        process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API!
+      );
+
+      formData.append("image", file);
+
+      const response = await fetch(
+        "https://api.imgbb.com/1/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error("Image upload failed");
+      }
+
+      uploadedImages.push({
+        id: Date.now() + Math.random(),
+        url: data.data.url,
+      });
+    }
 
     setImages((prev) => [
       ...prev,
-      ...newImages,
-    ].slice(0, 8));
-  };
+      ...uploadedImages,
+    ]);
+  } catch (error) {
+    // console.error("Image upload error:", error);
+  }
+};
 
   /* =======================================================
      REMOVE IMAGE
@@ -92,26 +137,71 @@ const AddNewProduct = () => {
     );
   };
 
+const handleChange = (  event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const { name, value } = event.target;
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+    
+  }));
+};
+
+
   /* =======================================================
      FORM SUBMIT
   ======================================================== */
 
-  const handleSubmit = (
-    event: React.FormEvent
-  ) => {
-    event.preventDefault();
+ const handleSubmit = async (
+  event: React.FormEvent
+) => {
+  event.preventDefault();
 
-    console.log({
-      productStatus,
-      productType,
-      stockStatus,
-      isDigital,
-      images,
-    });
+  const productData = {
+    ...formData,
+    productStatus,
+    productType,
+    stockStatus,
+    images: images.map((image) => image.url),
   };
 
+  try {
+    const result = await createProduct(productData);
+
+    // console.log("Product created:", result);
+
+    toast.success("Product added successfully!");
+
+  
+    setTimeout(() => {
+    router.push("/dashboard/seller/products");
+    }, 1500);
+
+  } catch (error) {
+    // console.error("Failed to create product:", error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Failed to add product"
+    );
+  }
+};
+
   return (
-    <section className="min-h-screen bg-[#F8FAFA] px-4 py-5 sm:px-6 lg:px-8">
+<>
+
+ <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop
+      closeOnClick
+      pauseOnHover
+      draggable
+    />
+
+<section className="min-h-screen bg-[#F8FAFA] px-4 py-5 sm:px-6 lg:px-8">
 
       <div className="mx-auto max-w-362.5">
 
@@ -237,6 +327,9 @@ const AddNewProduct = () => {
 
                     <input
                       type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder="Enter product name"
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] bg-white px-3 font-['Poppins'] text-[14px] text-[#1E293B] outline-none transition-all placeholder:text-[#94A3B8] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
@@ -255,6 +348,9 @@ const AddNewProduct = () => {
 
                     <input
                       type="text"
+                      name="sku"
+                      value={formData.sku}
+                      onChange={handleChange}
                       placeholder="Enter SKU (e.g. SKU-1001)"
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] bg-white px-3 font-['Poppins'] text-[14px] text-[#1E293B] outline-none transition-all placeholder:text-[#94A3B8] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
@@ -274,7 +370,10 @@ const AddNewProduct = () => {
                     <div className="relative">
 
                       <select
-                        defaultValue=""
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      
                         className="h-11 w-full appearance-none rounded-lg border border-[#DCE7E7] bg-white px-3 pr-10 font-['Poppins'] text-[14px] text-[#64748B] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                       >
                         <option value="" disabled>
@@ -319,7 +418,9 @@ const AddNewProduct = () => {
                     <div className="relative">
 
                       <select
-                        defaultValue=""
+                        name="brand"
+                        value={formData.brand}
+                        onChange={handleChange}                       
                         className="h-11 w-full appearance-none rounded-lg border border-[#DCE7E7] bg-white px-3 pr-10 font-['Poppins'] text-[14px] text-[#64748B] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                       >
                         <option value="" disabled>
@@ -367,6 +468,9 @@ const AddNewProduct = () => {
                     </div>
 
                     <textarea
+                      name="shortDescription"
+                      value={formData.shortDescription}
+                      onChange={handleChange}
                       rows={4}
                       maxLength={160}
                       placeholder="Enter a short description about the product..."
@@ -377,11 +481,7 @@ const AddNewProduct = () => {
 
                 </div>
 
-              </div>
-
-              {/* =================================================
-                  BASIC INFORMATION - END
-              ================================================== */}
+              </div>          
 
 
               {/* =================================================
@@ -409,7 +509,7 @@ const AddNewProduct = () => {
                 </div>
 
                 {/* Upload Area */}
-                <label className="group flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[#C9DCDC] bg-[#FAFCFC] px-5 text-center transition-all hover:border-[#0F766E] hover:bg-[#F6FAF9]">
+                <label className="group flex min-h-45 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[#C9DCDC] bg-[#FAFCFC] px-5 text-center transition-all hover:border-[#0F766E] hover:bg-[#F6FAF9]">
 
                   <input
                     type="file"
@@ -473,9 +573,7 @@ const AddNewProduct = () => {
 
               </div>
 
-              {/* =================================================
-                  PRODUCT MEDIA - END
-              ================================================== */}
+       
 
 
               {/* =================================================
@@ -510,6 +608,9 @@ const AddNewProduct = () => {
 
                     <input
                       type="number"
+                      name="regularPrice"
+                      value={formData.regularPrice}
+                      onChange={handleChange}
                       placeholder="0.00"
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] px-3 font-['Poppins'] text-[14px] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
@@ -524,7 +625,11 @@ const AddNewProduct = () => {
                     </label>
 
                     <input
+
                       type="number"
+                      name="salePrice"
+                      value={formData.salePrice}
+                      onChange={handleChange}
                       placeholder="0.00"
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] px-3 font-['Poppins'] text-[14px] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
@@ -532,7 +637,7 @@ const AddNewProduct = () => {
                   </div>
 
                   {/* Cost Price */}
-                  <div>
+                  {/* <div>
 
                     <label className="mb-2 block font-['Poppins'] text-[14px] font-medium text-[#334155]">
                       Cost Price (USD)
@@ -544,7 +649,7 @@ const AddNewProduct = () => {
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] px-3 font-['Poppins'] text-[14px] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
 
-                  </div>
+                  </div> */}
 
                   {/* Stock Quantity */}
                   <div>
@@ -558,6 +663,9 @@ const AddNewProduct = () => {
 
                     <input
                       type="number"
+                      name="stockQuantity"
+                      value={formData.stockQuantity}
+                      onChange={handleChange}
                       placeholder="0"
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] px-3 font-['Poppins'] text-[14px] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
@@ -572,7 +680,11 @@ const AddNewProduct = () => {
                     </label>
 
                     <input
+
                       type="number"
+                      name="lowStockAlert"
+                      value={formData.lowStockAlert}
+                      onChange={handleChange}
                       placeholder="5"
                       className="h-11 w-full rounded-lg border border-[#DCE7E7] px-3 font-['Poppins'] text-[14px] outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
                     />
@@ -622,7 +734,7 @@ const AddNewProduct = () => {
                 </div>
 
                 {/* Digital Product */}
-                <div className="mt-5 flex items-start gap-3">
+                {/* <div className="mt-5 flex items-start gap-3">
 
                   <button
                     type="button"
@@ -658,13 +770,9 @@ const AddNewProduct = () => {
 
                   </div>
 
-                </div>
+                </div> */}
 
               </div>
-
-              {/* =================================================
-                  PRICING & STOCK - END
-              ================================================== */}
 
 
               {/* =================================================
@@ -745,6 +853,9 @@ const AddNewProduct = () => {
                   </div>
 
                   <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
                     rows={8}
                     placeholder="Write detailed description about the product..."
                     className="w-full resize-none px-3 py-3 font-['Poppins'] text-[14px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
@@ -760,16 +871,9 @@ const AddNewProduct = () => {
 
               </div>
 
-              {/* =================================================
-                  PRODUCT DETAILS - END
-              ================================================== */}
 
             </div>
-
-            {/* =================================================
-                LEFT CONTENT - END
-            ================================================== */}
-
+      
 
             {/* =================================================
                 RIGHT SIDEBAR - START
@@ -884,9 +988,7 @@ const AddNewProduct = () => {
 
               </div>
 
-              {/* =================================================
-                  PRODUCT STATUS - END
-              ================================================== */}
+    
 
 
               {/* =================================================
@@ -969,9 +1071,7 @@ const AddNewProduct = () => {
 
               </div>
 
-              {/* =================================================
-                  PRODUCT TYPE - END
-              ================================================== */}
+        
 
 
               {/* =================================================
@@ -1030,9 +1130,7 @@ const AddNewProduct = () => {
 
               </div>
 
-              {/* =================================================
-                  PRODUCT SUMMARY - END
-              ================================================== */}
+          
 
 
               {/* =================================================
@@ -1091,15 +1189,11 @@ const AddNewProduct = () => {
 
               </div>
 
-              {/* =================================================
-                  SELLER TIPS - END
-              ================================================== */}
+     
 
             </aside>
 
-            {/* =================================================
-                RIGHT SIDEBAR - END
-            ================================================== */}
+    
 
           </div>
 
@@ -1108,6 +1202,9 @@ const AddNewProduct = () => {
       </div>
 
     </section>
+</>
+    
+    
   );
 };
 
