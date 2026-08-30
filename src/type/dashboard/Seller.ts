@@ -24,3 +24,22 @@ export interface Order {
   status: "Delivered" | "Shipped" | "Processing" | "Pending";
   date: string;
 }
+
+
+export interface getProduct {
+    id: string;
+  name: string;
+  shortDescription: string;
+  sku: string;
+  category: string;
+  brand: string;
+  regularPrice: number;
+  salePrice: number;
+  stockQuantity: number;
+  stockStatus: string;
+  status: string;
+  productType: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+}
