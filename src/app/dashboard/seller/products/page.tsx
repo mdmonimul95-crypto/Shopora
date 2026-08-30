@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -14,156 +14,15 @@ import {
   SlidersHorizontal,
   Plus,
 } from "lucide-react";
+import { getProduct } from "@/type/dashboard/Seller";
+import { getProducts } from "@/lib/api/getProducts";
 
-/* =========================================================
-   TYPES
-========================================================= */
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  sku: string;
-  category: string;
-  price: number;
-  stock: number;
-  status: "Published" | "Pending" | "Draft";
-  createdAt: string;
-  image: string;
-}
-
-/* =========================================================
-   PRODUCT DATA
-========================================================= */
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    description: "High quality sound",
-    sku: "SP-1001",
-    category: "Electronics",
-    price: 59.99,
-    stock: 120,
-    status: "Published",
-    createdAt: "May 26, 2024",
-    image: "/products/headphones.png",
-  },
-  {
-    id: 2,
-    name: "Smart Watch Series 8",
-    description: "Track your fitness",
-    sku: "SP-1002",
-    category: "Electronics",
-    price: 129.99,
-    stock: 85,
-    status: "Published",
-    createdAt: "May 25, 2024",
-    image: "/products/smart-watch.png",
-  },
-  {
-    id: 3,
-    name: "Running Shoes",
-    description: "Comfortable & lightweight",
-    sku: "SP-1003",
-    category: "Fashion",
-    price: 79.99,
-    stock: 60,
-    status: "Published",
-    createdAt: "May 24, 2024",
-    image: "/products/running-shoes.png",
-  },
-  {
-    id: 4,
-    name: "Coffee Maker",
-    description: "Brew perfect coffee",
-    sku: "SP-1004",
-    category: "Home Appliances",
-    price: 49.99,
-    stock: 45,
-    status: "Pending",
-    createdAt: "May 24, 2024",
-    image: "/products/coffee-maker.png",
-  },
-  {
-    id: 5,
-    name: "LED Desk Lamp",
-    description: "Eye-friendly light",
-    sku: "SP-1005",
-    category: "Home & Living",
-    price: 24.99,
-    stock: 200,
-    status: "Published",
-    createdAt: "May 23, 2024",
-    image: "/products/desk-lamp.png",
-  },
-  {
-    id: 6,
-    name: "Travel Backpack",
-    description: "Waterproof & durable",
-    sku: "SP-1006",
-    category: "Bags",
-    price: 39.99,
-    stock: 78,
-    status: "Draft",
-    createdAt: "May 22, 2024",
-    image: "/products/backpack.png",
-  },
-  {
-    id: 7,
-    name: "Wireless Earbuds",
-    description: "Crystal clear audio",
-    sku: "SP-1007",
-    category: "Electronics",
-    price: 39.99,
-    stock: 92,
-    status: "Published",
-    createdAt: "May 21, 2024",
-    image: "/products/earbuds.png",
-  },
-  {
-    id: 8,
-    name: "Gaming Keyboard",
-    description: "Mechanical gaming keyboard",
-    sku: "SP-1008",
-    category: "Electronics",
-    price: 89.99,
-    stock: 34,
-    status: "Published",
-    createdAt: "May 20, 2024",
-    image: "/products/keyboard.png",
-  },
-  {
-    id: 9,
-    name: "Travel Mug",
-    description: "Insulated travel mug",
-    sku: "SP-1009",
-    category: "Home & Living",
-    price: 19.99,
-    stock: 65,
-    status: "Pending",
-    createdAt: "May 19, 2024",
-    image: "/products/mug.png",
-  },
-  {
-    id: 10,
-    name: "Leather Wallet",
-    description: "Premium leather wallet",
-    sku: "SP-1010",
-    category: "Fashion",
-    price: 34.99,
-    stock: 110,
-    status: "Draft",
-    createdAt: "May 18, 2024",
-    image: "/products/wallet.png",
-  },
-];
 
 /* =========================================================
    STATUS STYLE
 ========================================================= */
 
-const getStatusStyle = (status: Product["status"]) => {
+const getStatusStyle = (status: getProduct["status"]) => {
   if (status === "Published") {
     return "border-[#BDE8D3] bg-[#EAF8F1] text-[#16875A]";
   }
@@ -186,7 +45,31 @@ const AllProducts = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [products, setProducts] = useState<getProduct[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+
   const productsPerPage = 6;
+
+
+  useEffect(()=>{
+    const fetchProducts = async () => {
+      try{
+        setLoading(true)
+        
+        const data = await getProducts();
+        console.log("Products from Backend: " , data)
+        setProducts(data)
+      }catch(err){
+        console.log("Failed to fetch products: " , err)
+        setError("Failed to fetch products")
+      }finally{
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
 
   /* =========================================================
      FILTER PRODUCTS
@@ -199,7 +82,7 @@ const AllProducts = () => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchValue) ||
         product.sku.toLowerCase().includes(searchValue) ||
-        product.description.toLowerCase().includes(searchValue);
+        product.shortDescription.toLowerCase().includes(searchValue);
 
       const matchesCategory =
         category === "All Categories" ||
@@ -210,7 +93,7 @@ const AllProducts = () => {
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [search, category, status]);
+  }, [products, search, category, status]);
 
   /* =========================================================
      PAGINATION
@@ -247,9 +130,12 @@ const AllProducts = () => {
     setCurrentPage(1);
   };
 
+
+
   return (
     <section className="min-h-screen bg-[#FCFDFD] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-      <div className="mx-auto max-w-362.5">
+      <div className="mx-auto max-w-362.5"> 
+        
 
         {/* =====================================================
             PAGE HEADER — START
@@ -496,7 +382,7 @@ const AllProducts = () => {
 
           <div className="hidden overflow-x-auto lg:block">
 
-            <table className="w-full min-w-[950px] border-collapse">
+            <table className="w-full min-w-237.5 border-collapse">
 
               {/* Table Header */}
 
@@ -545,6 +431,8 @@ const AllProducts = () => {
 
                 {visibleProducts.map((product) => (
 
+                  
+
                   <tr
                     key={product.id}
                     className="border-b border-[#E8EEEE] transition-colors hover:bg-[#FAFCFC]"
@@ -554,12 +442,13 @@ const AllProducts = () => {
 
                     <td className="px-4 py-3">
 
-                      <div className="flex min-w-[240px] items-center gap-3">
+                      <div className="flex min-w-60 items-center gap-3">
+                        
 
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#F5F7F7]">
 
                           <Image
-                            src={product.image}
+                            src={product.images[0]}
                             alt={product.name}
                             width={48}
                             height={48}
@@ -574,9 +463,6 @@ const AllProducts = () => {
                             {product.name}
                           </p>
 
-                          <p className="mt-0.5 truncate font-['Poppins'] text-[14px] text-[#64748B]">
-                            {product.description}
-                          </p>
 
                         </div>
 
@@ -588,21 +474,21 @@ const AllProducts = () => {
                     {/* SKU */}
 
                     <td className="px-4 py-3 font-['Poppins'] text-[14px] text-[#475569]">
-                      {product.sku}
+                      {product?.sku}
                     </td>
 
 
                     {/* Category */}
 
                     <td className="px-4 py-3 font-['Poppins'] text-[14px] text-[#475569]">
-                      {product.category}
+                      {product?.category}
                     </td>
 
 
                     {/* Price */}
 
                     <td className="px-4 py-3 font-['Poppins'] text-[14px] font-medium text-[#334155]">
-                      ${product.price.toFixed(2)}
+                      ${product?.salePrice.toFixed(2)}
                     </td>
 
 
@@ -612,12 +498,12 @@ const AllProducts = () => {
 
                       <span
                         className={`font-['Poppins'] text-[14px] font-semibold ${
-                          product.stock < 50
+                          product?.stockQuantity < 50
                             ? "text-[#F97316]"
                             : "text-[#0F766E]"
                         }`}
                       >
-                        {product.stock}
+                        {product?.stockStatus}
                       </span>
 
                     </td>
@@ -627,18 +513,7 @@ const AllProducts = () => {
 
                     <td className="px-4 py-3">
 
-                      <span
-                        className={`
-                          inline-flex
-                          rounded-md
-                          border
-                          px-2.5
-                          py-1
-                          font-['Poppins']
-                          text-[14px]
-                          font-medium
-                          ${getStatusStyle(product.status)}
-                        `}
+                      <span className={` inline-flex rounded-md border px-2.5 py-1 font-['Poppins'] text-[14px] font-medium ${getStatusStyle(product.status)} `}
                       >
                         {product.status}
                       </span>
@@ -662,19 +537,7 @@ const AllProducts = () => {
                         <Link
                           href={`/dashboard/products/${product.id}`}
                           className="
-                            flex
-                            h-9
-                            w-9
-                            items-center
-                            justify-center
-                            rounded-lg
-                            border
-                            border-[#DDE5E5]
-                            text-[#475569]
-                            transition-all
-                            hover:border-[#0F766E]
-                            hover:bg-[#E8F5F3]
-                            hover:text-[#0F766E]
+                            flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#475569] transition-all hover:border-[#0F766E] hover:bg-[#E8F5F3] hover:text-[#0F766E]
                           "
                           title="View Product"
                         >
@@ -683,20 +546,8 @@ const AllProducts = () => {
 
                         <Link
                           href={`/dashboard/products/${product.id}/edit`}
-                          className="
-                            flex
-                            h-9
-                            w-9
-                            items-center
-                            justify-center
-                            rounded-lg
-                            border
-                            border-[#DDE5E5]
-                            text-[#475569]
-                            transition-all
-                            hover:border-[#0F766E]
-                            hover:bg-[#E8F5F3]
-                            hover:text-[#0F766E]
+                          className=" flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#475569] transition-all hover:border-[#0F766E]
+                            hover:bg-[#E8F5F3] hover:text-[#0F766E]
                           "
                           title="Edit Product"
                         >
@@ -704,19 +555,7 @@ const AllProducts = () => {
                         </Link>
 
                         <button
-                          type="button"
-                          className="
-                            flex
-                            h-9
-                            w-9
-                            items-center
-                            justify-center
-                            rounded-lg
-                            border
-                            border-[#FFD0D0]
-                            text-[#EF4444]
-                            transition-all
-                            hover:bg-[#FFF5F5]
+                          type="button" className=" flex h-9 w-9 items-center justify-center rounded-lg border border-[#FFD0D0] text-[#EF4444] transition-all hover:bg-[#FFF5F5]
                           "
                           title="Delete Product"
                         >
@@ -762,7 +601,7 @@ const AllProducts = () => {
                   <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#F5F7F7]">
 
                     <Image
-                      src={product.image}
+                      src={product?.images[0]}
                       alt={product.name}
                       width={64}
                       height={64}
@@ -785,23 +624,13 @@ const AllProducts = () => {
                         </h3>
 
                         <p className="mt-1 font-['Poppins'] text-[14px] text-[#64748B]">
-                          {product.description}
+                          {product?.shortDescription}
                         </p>
 
                       </div>
 
                       <span
-                        className={`
-                          shrink-0
-                          rounded-md
-                          border
-                          px-2
-                          py-1
-                          font-['Poppins']
-                          text-[14px]
-                          font-medium
-                          ${getStatusStyle(product.status)}
-                        `}
+                        className={` shrink-0 rounded-md border px-2 py-1 font-['Poppins'] text-[14px] font-medium ${getStatusStyle(product.status)} `}
                       >
                         {product.status}
                       </span>
@@ -837,7 +666,7 @@ const AllProducts = () => {
                         </p>
 
                         <p className="font-['Poppins'] text-[14px] font-semibold text-[#334155]">
-                          ${product.price.toFixed(2)}
+                          ${product?.salePrice.toFixed(2)}
                         </p>
                       </div>
 
@@ -848,12 +677,12 @@ const AllProducts = () => {
 
                         <p
                           className={`font-['Poppins'] text-[14px] font-semibold ${
-                            product.stock < 50
+                            product?.stockQuantity < 50
                               ? "text-[#F97316]"
                               : "text-[#0F766E]"
                           }`}
                         >
-                          {product.stock}
+                          {product?.stockQuantity}
                         </p>
                       </div>
 
@@ -876,33 +705,14 @@ const AllProducts = () => {
 
                     <Link
                       href={`/dashboard/products/${product.id}`}
-                      className="
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-lg
-                        border
-                        border-[#DDE5E5]
-                        text-[#475569]
-                      "
+                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#475569]"
                     >
                       <Eye size={16} />
                     </Link>
 
                     <Link
                       href={`/dashboard/products/${product.id}/edit`}
-                      className="
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-lg
-                        border
-                        border-[#DDE5E5]
-                        text-[#475569]
+                      className=" flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#475569]
                       "
                     >
                       <Pencil size={16} />
@@ -911,15 +721,7 @@ const AllProducts = () => {
                     <button
                       type="button"
                       className="
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-lg
-                        border
-                        border-[#FFD0D0]
-                        text-[#EF4444]
+                        flex h-9 w-9 items-center justify-center rounded-lg border border-[#FFD0D0] text-[#EF4444]
                       "
                     >
                       <Trash2 size={16} />
@@ -1020,22 +822,7 @@ const AllProducts = () => {
                     Math.max(1, page - 1)
                   )
                 }
-                className="
-                  flex
-                  h-9
-                  w-9
-                  items-center
-                  justify-center
-                  rounded-lg
-                  border
-                  border-[#DDE5E5]
-                  text-[#64748B]
-                  transition-colors
-                  hover:bg-[#F6FAF9]
-                  hover:text-[#0F766E]
-                  disabled:cursor-not-allowed
-                  disabled:opacity-40
-                "
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#64748B] transition-colors hover:bg-[#F6FAF9] hover:text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={17} />
               </button>
@@ -1052,25 +839,7 @@ const AllProducts = () => {
                   key={page}
                   type="button"
                   onClick={() => setCurrentPage(page)}
-                  className={`
-                    flex
-                    h-9
-                    min-w-9
-                    items-center
-                    justify-center
-                    rounded-lg
-                    px-2
-                    font-['Poppins']
-                    text-[14px]
-                    font-medium
-                    transition-colors
-
-                    ${
-                      currentPage === page
-                        ? "bg-[#0F766E] text-white"
-                        : "border border-[#DDE5E5] bg-white text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
-                    }
-                  `}
+                  className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 font-['Poppins'] text-[14px] font-medium transition-colors ${currentPage === page ? "bg-[#0F766E] text-white" : "border border-[#DDE5E5] bg-white text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"}`}
                 >
                   {page}
                 </button>
@@ -1089,20 +858,7 @@ const AllProducts = () => {
                   )
                 }
                 className="
-                  flex
-                  h-9
-                  w-9
-                  items-center
-                  justify-center
-                  rounded-lg
-                  border
-                  border-[#DDE5E5]
-                  text-[#64748B]
-                  transition-colors
-                  hover:bg-[#F6FAF9]
-                  hover:text-[#0F766E]
-                  disabled:cursor-not-allowed
-                  disabled:opacity-40
+                  flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#64748B] transition-colors hover:bg-[#F6FAF9] hover:text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-40
                 "
               >
                 <ChevronRight size={17} />

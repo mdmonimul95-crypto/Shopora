@@ -995,7 +995,7 @@ const handleChange = (  event: React.ChangeEvent<HTMLInputElement | HTMLTextArea
                   PRODUCT TYPE - START
               ================================================== */}
 
-              <div className="rounded-xl border border-[#E5EEEE] bg-white p-5">
+              {/* <div className="rounded-xl border border-[#E5EEEE] bg-white p-5">
 
                 <h3 className="mb-4 font-['Poppins'] text-[16px] font-semibold text-[#1E293B]">
                   Product Type
@@ -1003,7 +1003,7 @@ const handleChange = (  event: React.ChangeEvent<HTMLInputElement | HTMLTextArea
 
                 <div className="space-y-4">
 
-                  {/* Physical */}
+                
                   <label className="flex cursor-pointer items-start gap-3">
 
                     <input
@@ -1035,7 +1035,7 @@ const handleChange = (  event: React.ChangeEvent<HTMLInputElement | HTMLTextArea
 
                   </label>
 
-                  {/* Digital */}
+              
                   <label className="flex cursor-pointer items-start gap-3">
 
                     <input
@@ -1069,7 +1069,7 @@ const handleChange = (  event: React.ChangeEvent<HTMLInputElement | HTMLTextArea
 
                 </div>
 
-              </div>
+              </div> */}
 
         
 
