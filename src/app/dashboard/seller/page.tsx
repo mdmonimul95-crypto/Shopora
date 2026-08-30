@@ -10,16 +10,11 @@ import SecondContentRow from "@/components/dashboard/seller/SecondContentRow";
 import GrowBusinessTools from "@/components/dashboard/seller/GrowBusinessTools";
 
 
-// ============================================================
-// SELLER DASHBOARD
-// ============================================================
+
 
 const SellerDashboard = () => {
   const {  isPending } = useSession();
 
-  // ==========================================================
-  // LOADING
-  // ==========================================================
 
   if (isPending) {
     return (
@@ -32,9 +27,7 @@ const SellerDashboard = () => {
   }
 
 
-  // ==========================================================
-  // MAIN DASHBOARD
-  // ==========================================================
+
 
   return (
     <section className="min-h-screen bg-[#F8FAFC] px-4 py-5 sm:px-6 lg:px-8">
