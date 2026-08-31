@@ -58,10 +58,10 @@ const [error, setError] = useState("");
         setLoading(true)
         
         const data = await getProducts();
-        console.log("Products from Backend: " , data)
+        // console.log("Products from Backend: " , data)
         setProducts(data)
       }catch(err){
-        console.log("Failed to fetch products: " , err)
+        // console.log("Failed to fetch products: " , err)
         setError("Failed to fetch products")
       }finally{
         setLoading(false)
@@ -535,7 +535,7 @@ const [error, setError] = useState("");
                       <div className="flex items-center gap-2">
 
                         <Link
-                          href={`/dashboard/products/${product.id}`}
+                          href={`/dashboard/seller/products/${product.id}`}
                           className="
                             flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#475569] transition-all hover:border-[#0F766E] hover:bg-[#E8F5F3] hover:text-[#0F766E]
                           "
