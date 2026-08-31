@@ -188,25 +188,27 @@ const sellerNavItems: NavItem[] = [
   },
 ];
 
-// Sub Menu
-const productLinks = [
-  {
-    label: "All Products",
-    href: "/dashboard/seller/products",
-  },
-  {
-    label: "Add New Product",
-    href: "/dashboard/seller/products/add",
-  },
-  {
-    label: "Categories",
-    href: "/dashboard/products/categories",
-  },
-  {
-    label: "Brands",
-    href: "/dashboard/products/brands",
-  },
-];
+      //Sub Menu
+      const productLinks = [
+        {
+          label: "All Products",
+          href: "/dashboard/seller/products",
+        },
+        {
+          label: "Add New Product",
+          href: "/dashboard/seller/products/add",
+        },
+        {
+          label: "Categories",
+          href: "/dashboard/seller/products/categories",
+        },
+        {
+          label: "Brands",
+          href: "/dashboard/seller/products/brands",
+        },
+      ];
+
+
 
 /* =========================================================
    ADMIN NAVIGATION
