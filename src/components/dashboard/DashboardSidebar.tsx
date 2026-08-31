@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/app/lib/auth-client";
 
-
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -32,6 +31,7 @@ import {
   FileBarChart,
   ChevronRight,
   ChevronDown,
+  Home,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -39,7 +39,7 @@ import Image from "next/image";
    TYPES
 ========================================================= */
 
-type UserRole = "customer" | "Seller" | "admin";
+type UserRole = "Customer" | "Seller" | "Admin";
 
 interface NavItem {
   label: string;
@@ -54,29 +54,35 @@ interface NavItem {
 ========================================================= */
 
 const customerNavItems: NavItem[] = [
+
+  {
+    label: "Home",
+    href: "/",
+    icon: Home,
+  },
   {
     label: "Dashboard",
-    href: "/dashboard",
+    href: "/dashboard/customer",
     icon: LayoutDashboard,
   },
   {
     label: "My Orders - customer",
-    href: "/dashboard/orders",
+    href: "/dashboard/customer/my-order",
     icon: ShoppingBag,
   },
   {
     label: "Wishlist",
-    href: "/dashboard/wishlist",
+    href: "/dashboard/customer/wishlist",
     icon: Heart,
   },
   {
     label: "Coupons",
-    href: "/dashboard/coupons",
+    href: "/dashboard/customer/coupons",
     icon: Ticket,
   },
   {
     label: "Addresses",
-    href: "/dashboard/addresses",
+    href: "/dashboard/customer/addresses",
     icon: MapPin,
   },
   {
@@ -283,11 +289,10 @@ const DashboardSidebar = () => {
 
   const pathname = usePathname();
   const [isProductsOpen, setIsProductsOpen] = useState(
-  pathname.startsWith("/dashboard/products")
-)
+    pathname.startsWith("/dashboard/products")
+  );
 
   const { data: session, isPending } = useSession();
-
 
   /* =======================================================
      USER DATA
@@ -297,24 +302,33 @@ const DashboardSidebar = () => {
 
   const userRole: UserRole =
     ((user as { role?: UserRole } | undefined)?.role as UserRole) ??
-    "Seller";
-    
+    "Customer";
 
-  const navLinksMap = {
-  customer: customerNavItems,
-  Seller: sellerNavItems,
-  admin: adminNavItems,
-};
-  const navItems = navLinksMap[userRole] ?? customerNavItems;
- 
+  const navLinksMap: Record<UserRole, NavItem[]> = {
+    Customer: customerNavItems,
+    Seller: sellerNavItems,
+    Admin: adminNavItems,
+  };
+
+  const dashboardHrefMap: Record<UserRole, string> = {
+    Customer: "/dashboard/customer",
+    Seller: "/dashboard/seller",
+    Admin: "/dashboard/admin",
+  };
+
+  const navItems = (navLinksMap[userRole] ?? customerNavItems).map((item) =>
+    item.label === "Dashboard"
+      ? { ...item, href: dashboardHrefMap[userRole] }
+      : item
+  );
+
   /* =======================================================
      USER NAME
   ======================================================== */
 
   const userName = user?.name || "John Smith";
 
-  const userEmail =
-    user?.email || "john.smith@email.com";
+  const userEmail = user?.email || "john.smith@email.com";
 
   /* =======================================================
      USER INITIAL
@@ -332,16 +346,12 @@ const DashboardSidebar = () => {
   ======================================================== */
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") {
-      return pathname === "/dashboard";
-    }
-
-    if (href === "/dashboard/seller") {
-      return pathname === "/dashboard/seller";
-    }
-
-    if (href === "/dashboard/admin") {
-      return pathname === "/dashboard/admin";
+    if (
+      href === "/dashboard/customer" ||
+      href === "/dashboard/seller" ||
+      href === "/dashboard/admin"
+    ) {
+      return pathname === href;
     }
 
     return pathname.startsWith(href);
@@ -352,7 +362,11 @@ const DashboardSidebar = () => {
   ======================================================== */
 
   const roleLabel =
-    userRole === "admin" ? "Super Admin" : userRole === "Seller" ? "Verified Seller" : "Verified Customer";
+    userRole === "Admin"
+      ? "Super Admin"
+      : userRole === "Seller"
+      ? "Verified Seller"
+      : "Verified Customer";
 
   /* =======================================================
      LOADING
@@ -370,7 +384,6 @@ const DashboardSidebar = () => {
     );
   }
 
- 
   /* =======================================================
      NAVIGATION CONTENT
   ======================================================== */
@@ -378,132 +391,110 @@ const DashboardSidebar = () => {
   const navigationContent = (
     <nav className="px-3 py-4">
       <div className="space-y-1">
-
         {navItems.map((item) => {
+          // =====================================================
+          // PRODUCTS DROPDOWN
+          // =====================================================
 
-  // =====================================================
-  // PRODUCTS DROPDOWN
-  // =====================================================
-
-  if (
-    userRole === "Seller" &&
-    item.label === "Products"
-  ) {
-    return (
-      <div key={item.label}>
-
-        {/* Products Button */}
-        <button
-          type="button"
-          onClick={() =>
-            setIsProductsOpen((prev) => !prev)
-          }
-          className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
-            pathname.startsWith("/dashboard/seller/products")
-              ? "bg-[#E8F5F3] text-[#0F766E]"
-              : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
-          }`}
-        >
-          <Package
-            size={18}
-            strokeWidth={1.8}
-          />
-
-          <span className="flex-1 text-left">
-            Products
-          </span>
-
-          <ChevronDown
-            size={16}
-            strokeWidth={1.8}
-            className={`transition-transform duration-200 ${
-              isProductsOpen
-                ? "rotate-180"
-                : ""
-            }`}
-          />
-        </button>
-
-        {/* Products Dropdown */}
-        {isProductsOpen && (
-          <div className="relative ml-4 mt-1 space-y-1 border-l border-[#DDE8E7] pl-3">
-
-            {productLinks.map((product) => {
-              const active = isActive(
-                product.href
-              );
-
-              return (
-                <Link
-                  key={product.href}
-                  href={product.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`block rounded-md px-3 py-2 font-['Poppins'] text-[14px] font-medium transition-colors duration-200 ${
-                    active
+          if (userRole === "Seller" && item.label === "Products") {
+            return (
+              <div key={item.label}>
+                {/* Products Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsProductsOpen((prev) => !prev)}
+                  className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
+                    pathname.startsWith("/dashboard/seller/products")
                       ? "bg-[#E8F5F3] text-[#0F766E]"
                       : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
                   }`}
                 >
-                  {product.label}
-                </Link>
-              );
-            })}
+                  <Package size={18} strokeWidth={1.8} />
 
-          </div>
-        )}
-      </div>
-    );
-  }
+                  <span className="flex-1 text-left">Products</span>
 
-  // =====================================================
-  // OTHER NAVIGATION ITEMS
-  // =====================================================
+                  <ChevronDown
+                    size={16}
+                    strokeWidth={1.8}
+                    className={`transition-transform duration-200 ${
+                      isProductsOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-  const Icon = item.icon;
-  const active = isActive(item.href);
+                {/* Products Dropdown */}
+                {isProductsOpen && (
+                  <div className="relative ml-4 mt-1 space-y-1 border-l border-[#DDE8E7] pl-3">
+                    {productLinks.map((product) => {
+                      const active = isActive(product.href);
 
-  return (
-    <Link
-      key={item.label}
-      href={item.href}
-      onClick={() => setIsOpen(false)}
-      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
-        active
-          ? "bg-[#E8F5F3] text-[#0F766E]"
-          : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
-      }`}
-    >
-      <Icon
-        size={18}
-        strokeWidth={1.7}
-        className={`shrink-0 transition-colors ${
-          active
-            ? "text-[#0F766E]"
-            : "text-[#64748B] group-hover:text-[#0F766E]"
-        }`}
-      />
+                      return (
+                        <Link
+                          key={product.href}
+                          href={product.href}
+                          onClick={() => setIsOpen(false)}
+                          className={`block rounded-md px-3 py-2 font-['Poppins'] text-[14px] font-medium transition-colors duration-200 ${
+                            active
+                              ? "bg-[#E8F5F3] text-[#0F766E]"
+                              : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+                          }`}
+                        >
+                          {product.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
 
-      <span className="flex-1">
-        {item.label}
-      </span>
+          // =====================================================
+          // OTHER NAVIGATION ITEMS
+          // =====================================================
 
-      {/* Number Badge */}
-      {item.badge && (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF6B6B] px-1.5 font-['Poppins'] text-[14px] font-semibold text-white">
-          {item.badge}
-        </span>
-      )}
+          const Icon = item.icon;
+          const active = isActive(item.href);
 
-      {/* New Badge */}
-      {item.badgeText && (
-        <span className="rounded-full bg-[#0F766E] px-2 py-0.5 font-['Poppins'] text-[14px] font-semibold text-white">
-          {item.badgeText}
-        </span>
-      )}
-    </Link>
-  );
-})}
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
+              className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-['Poppins'] text-[14px] font-medium transition-all duration-200 ${
+                active
+                  ? "bg-[#E8F5F3] text-[#0F766E]"
+                  : "text-[#475569] hover:bg-[#F6FAF9] hover:text-[#0F766E]"
+              }`}
+            >
+              <Icon
+                size={18}
+                strokeWidth={1.7}
+                className={`shrink-0 transition-colors ${
+                  active
+                    ? "text-[#0F766E]"
+                    : "text-[#64748B] group-hover:text-[#0F766E]"
+                }`}
+              />
 
+              <span className="flex-1">{item.label}</span>
+
+              {/* Number Badge */}
+              {item.badge && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF6B6B] px-1.5 font-['Poppins'] text-[14px] font-semibold text-white">
+                  {item.badge}
+                </span>
+              )}
+
+              {/* New Badge */}
+              {item.badgeText && (
+                <span className="rounded-full bg-[#0F766E] px-2 py-0.5 font-['Poppins'] text-[14px] font-semibold text-white">
+                  {item.badgeText}
+                </span>
+              )}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
@@ -520,14 +511,9 @@ const DashboardSidebar = () => {
           onClick={() => setIsOpen(true)}
           className="flex w-full items-center gap-3 px-4 py-3 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-all duration-200 hover:bg-[#F6FAF9] hover:text-[#0F766E]"
         >
-          <Sidebar
-            size={19}
-            strokeWidth={1.8}
-          />
+          <Sidebar size={19} strokeWidth={1.8} />
 
-          <span>
-            Menu
-          </span>
+          <span>Menu</span>
         </button>
       </div>
 
@@ -548,12 +534,9 @@ const DashboardSidebar = () => {
 
       <aside
         className={`fixed left-0 top-0 z-50 h-screen w-72 border-r border-[#E8EEEE] bg-white transition-transform duration-300 ease-in-out ${
-          isOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
+          isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:w-64 lg:translate-x-0`}
       >
-
         {/* ===================================================
             MOBILE CLOSE BUTTON
         ==================================================== */}
@@ -564,14 +547,9 @@ const DashboardSidebar = () => {
             onClick={() => setIsOpen(false)}
             className="flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] transition-all hover:bg-[#FFF5F5] hover:text-[#FF6B6B]"
           >
-            <X
-              size={20}
-              strokeWidth={1.8}
-            />
+            <X size={20} strokeWidth={1.8} />
           </button>
         </div>
-
-      
 
         {/* ===================================================
             USER PROFILE
@@ -579,7 +557,6 @@ const DashboardSidebar = () => {
 
         <div className="border-b border-[#E8EEEE] px-4 py-4">
           <div className="flex items-center gap-3">
-
             {/* Avatar */}
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
               {user?.image ? (
@@ -599,7 +576,6 @@ const DashboardSidebar = () => {
 
             {/* User Info */}
             <div className="min-w-0 flex-1">
-
               <h3 className="truncate font-['Poppins'] text-[14px] font-semibold text-[#1E293B]">
                 {userName}
               </h3>
@@ -611,9 +587,7 @@ const DashboardSidebar = () => {
               <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#E8F5F3] px-2 py-0.5 font-['Poppins'] text-[14px] font-medium text-[#0F766E]">
                 ✓ {roleLabel}
               </span>
-
             </div>
-
           </div>
         </div>
 
@@ -631,30 +605,22 @@ const DashboardSidebar = () => {
 
         {userRole === "Seller" && (
           <div className="border-t border-[#E8EEEE] p-3">
-
             <div className="rounded-xl border border-[#E8EEEE] bg-[#F6FAF9] p-3">
-
               <div className="flex items-start gap-3">
-
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
-                  <Bot
-                    size={22}
-                    className="text-[#0F766E]"
-                  />
+                  <Bot size={22} className="text-[#0F766E]" />
                 </div>
 
                 <div className="min-w-0">
-
                   <h4 className="font-['Poppins'] text-[14px] font-semibold text-[#0F766E]">
                     Shopora AI Assistant
                   </h4>
 
                   <p className="mt-1 font-['Poppins'] text-[14px] leading-5 text-[#64748B]">
-                    Generate product descriptions, tags, and optimize your listings using AI.
+                    Generate product descriptions, tags, and optimize your
+                    listings using AI.
                   </p>
-
                 </div>
-
               </div>
 
               <Link
@@ -665,9 +631,7 @@ const DashboardSidebar = () => {
                 Open Assistant
                 <ChevronRight size={16} />
               </Link>
-
             </div>
-
           </div>
         )}
 
@@ -676,8 +640,7 @@ const DashboardSidebar = () => {
         ==================================================== */}
 
         <div className="border-t border-[#E8EEEE] bg-white px-3 py-3">
-
-          {userRole !== "customer" && (
+          {userRole !== "Customer" && (
             <Link
               href={
                 userRole === "Seller"
@@ -692,7 +655,6 @@ const DashboardSidebar = () => {
                 strokeWidth={1.7}
                 className="text-[#64748B] group-hover:text-[#0F766E]"
               />
-
               Settings
             </Link>
           )}
@@ -708,13 +670,9 @@ const DashboardSidebar = () => {
               className="text-[#64748B] group-hover:text-[#FF6B6B]"
             />
 
-            <span>
-              Logout
-            </span>
+            <span>Logout</span>
           </button>
-
         </div>
-
       </aside>
     </>
   );
