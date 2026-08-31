@@ -45,3 +45,34 @@ export interface getProduct {
   createdAt: string;
   updatedAt: string;
 }
+
+
+export interface Coupon {
+  id: number;
+  code: string;
+  description: string;
+  type: CouponType;
+  discount: number;
+  discountText: string;
+  usage: number;
+  usageLimit: number;
+  minimumOrder: number;
+  startDate: string;
+  endDate: string;
+  status: CouponStatus;
+  color: string;
+}
+
+export type CouponStatus = "Active" | "Expired" | "Inactive";
+export type CouponType = "Percentage" | "Fixed Amount" | "Free Shipping";
+
+
+export type Brand = {
+  id: number;
+  name: string;
+  description: string;
+  products: number;
+  status: "Active" | "Inactive";
+  createdAt: string;
+  logo: string;
+};

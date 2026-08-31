@@ -194,11 +194,11 @@ const sellerNavItems: NavItem[] = [
         },
         {
           label: "Categories",
-          href: "/dashboard/products/categories",
+          href: "/dashboard/seller/products/categories",
         },
         {
           label: "Brands",
-          href: "/dashboard/products/brands",
+          href: "/dashboard/seller/products/brands",
         },
       ];
 
