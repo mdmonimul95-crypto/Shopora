@@ -545,7 +545,7 @@ const [error, setError] = useState("");
                         </Link>
 
                         <Link
-                          href={`/dashboard/products/${product.id}/edit`}
+                          href={`/dashboard/seller/products/${product.id}/edit`}
                           className=" flex h-9 w-9 items-center justify-center rounded-lg border border-[#DDE5E5] text-[#475569] transition-all hover:border-[#0F766E]
                             hover:bg-[#E8F5F3] hover:text-[#0F766E]
                           "

@@ -37,7 +37,7 @@ export interface getProduct {
   regularPrice: number;
   salePrice: number;
   stockQuantity: number;
-  lowStockAlert: string;
+  lowStockAlert: number;
   stockStatus: string;
   productType: string;
   status: string;
