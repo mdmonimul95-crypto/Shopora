@@ -30,15 +30,17 @@ export interface getProduct {
     id: string;
   name: string;
   shortDescription: string;
+  description: string;
   sku: string;
   category: string;
   brand: string;
   regularPrice: number;
   salePrice: number;
   stockQuantity: number;
+  lowStockAlert: string;
   stockStatus: string;
-  status: string;
   productType: string;
+  status: string;
   images: string[];
   createdAt: string;
   updatedAt: string;
