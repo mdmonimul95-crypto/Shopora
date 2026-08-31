@@ -16,6 +16,10 @@ import {
 } from "lucide-react";
 import { getProduct } from "@/type/dashboard/Seller";
 import { getProducts } from "@/lib/api/getProducts";
+import { DeleteProduct } from "@/lib/api/deleteProduct";
+import { toast } from "react-toastify";
+import DeleteConfirmModal from "@/components/dashboard/seller/DeleteConfirmModal";
+
 
 
 /* =========================================================
@@ -48,6 +52,7 @@ const AllProducts = () => {
   const [products, setProducts] = useState<getProduct[]>([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
+const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 
   const productsPerPage = 6;
 
@@ -130,13 +135,40 @@ const [error, setError] = useState("");
     setCurrentPage(1);
   };
 
+ const handleDelete = async () => {
+  if (!deleteProductId) return;
+
+  try {
+    await DeleteProduct(deleteProductId);
+
+    setProducts((prevProducts) =>
+      prevProducts.filter((product) => product.id !== deleteProductId)
+    );
+
+    setDeleteProductId(null);
+
+    toast.success("Product deleted successfully!");
+  } catch (error) {
+    console.error("DELETE PRODUCT ERROR:", error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Failed to delete product"
+    );
+  }
+};
 
 
   return (
     <section className="min-h-screen bg-[#FCFDFD] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
       <div className="mx-auto max-w-362.5"> 
         
-
+<DeleteConfirmModal
+      isOpen={deleteProductId !== null}
+      onClose={() => setDeleteProductId(null)}
+      onConfirm={handleDelete}
+    />
         {/* =====================================================
             PAGE HEADER — START
         ====================================================== */}
@@ -555,6 +587,7 @@ const [error, setError] = useState("");
                         </Link>
 
                         <button
+                        onClick={()=> setDeleteProductId(product.id)}
                           type="button" className=" flex h-9 w-9 items-center justify-center rounded-lg border border-[#FFD0D0] text-[#EF4444] transition-all hover:bg-[#FFF5F5]
                           "
                           title="Delete Product"
