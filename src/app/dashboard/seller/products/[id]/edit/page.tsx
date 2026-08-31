@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { UpdateProduct } from "@/lib/api/updateProduct";
 import Image from "next/image";
 import { getProduct } from "@/type/dashboard/Seller";
 import { toast } from "react-toastify";
+import { UpdateProduct } from "@/lib/core/updateProduct";
 
 
 
