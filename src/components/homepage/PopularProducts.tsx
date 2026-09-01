@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { getPopularProducts } from "@/lib/api/homepage/popularProducts";
 import { PopularProduct } from "@/type/homePage";
+import Link from "next/link";
 
 
 
@@ -33,15 +34,7 @@ const PopularProducts = async () => {
         {/* Product Slider */}
         <div className="relative">
 
-          {/* Left Arrow */}
-          <button
-            type="button"
-            aria-label="Previous products"
-            className="absolute -left-3 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#E8EEEE] bg-white text-[#64748B] shadow-sm transition-all duration-300 hover:border-[#0F766E] hover:text-[#0F766E] sm:-left-4"
-          >
-            <ChevronLeft size={17} />
-          </button>
-
+      
           {/* Products */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 
@@ -133,15 +126,13 @@ const PopularProducts = async () => {
                     </div>
 
                     {/* Add To Cart */}
-                    <button
-                      type="button"
-                      disabled={product.stockQuantity <= 0}
-                      className="mt-2.5 w-full rounded-md bg-[#0F766E] py-1.5 font-['Poppins'] text-[12px] font-medium text-white transition-all duration-300 hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:bg-[#CBD5E1] md:text-[16px]"
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="mt-2.5 flex w-full items-center justify-center rounded-md bg-[#0F766E] py-1.5 font-['Poppins'] text-[12px] font-medium text-white transition-all duration-300 hover:bg-[#0B625B] md:text-[16px]"
                     >
-                      {product.stockQuantity > 0
-                        ? "Add to Cart"
-                        : "Out of Stock"}
-                    </button>
+                      Add to Cart
+                    </Link>
+
 
                   </div>
                 </div>
@@ -150,14 +141,6 @@ const PopularProducts = async () => {
 
           </div>
 
-          {/* Right Arrow */}
-          <button
-            type="button"
-            aria-label="Next products"
-            className="absolute -right-3 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#E8EEEE] bg-white text-[#64748B] shadow-sm transition-all duration-300 hover:border-[#0F766E] hover:text-[#0F766E] sm:-right-4"
-          >
-            <ChevronRight size={17} />
-          </button>
 
         </div>
       </div>

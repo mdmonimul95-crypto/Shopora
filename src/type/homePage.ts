@@ -67,3 +67,21 @@ export type PopularProduct = {
   stockStatus: string;
   images: string[];
 };
+
+
+export type homePageSingleProduct = {
+  id: string;
+  name: string;
+  sku?: string;
+  shortDescription?: string;
+  category: string;
+  brand?: string;
+  regularPrice: number;
+  salePrice?: number | null;
+  stockQuantity: number;
+  stockStatus: string;
+  description?: string;
+  images: string[];
+  rating?: number;
+  reviews?: number;
+};
