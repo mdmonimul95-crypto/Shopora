@@ -76,3 +76,15 @@ export type Brand = {
   createdAt: string;
   logo: string;
 };
+
+
+export type Category = {
+  id: string;
+  name: string;
+  description?: string | null;
+  status: string;
+  createdAt: string;
+  _count: {
+    products: number;
+  };
+};
