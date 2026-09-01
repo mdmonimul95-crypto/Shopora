@@ -52,3 +52,18 @@ export interface TrustStat {
   value: string;
   label: string;
 }
+
+
+
+export type PopularProduct = {
+  id: string;
+  name: string;
+  shortDescription?: string;
+  category: string;
+  brand?: string;
+  regularPrice: number;
+  salePrice?: number | null;
+  stockQuantity: number;
+  stockStatus: string;
+  images: string[];
+};
