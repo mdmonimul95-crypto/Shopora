@@ -1,5 +1,6 @@
-'use client'
-import React, { useMemo, useState } from "react";
+"use client";
+
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Search,
@@ -16,99 +17,154 @@ import {
   Dumbbell,
   BookOpen,
 } from "lucide-react";
+import { type Category } from "@/type/dashboard/Seller";
 
-const categories = [
-  {
-    id: 1,
-    name: "Electronics",
-    description: "Devices and gadgets for everyday use",
-    products: 28,
-    status: "Active",
-    createdAt: "May 26, 2024",
-    icon: Headphones,
-    iconBg: "bg-teal-50",
-    iconColor: "text-teal-600",
-  },
-  {
-    id: 2,
-    name: "Fashion",
-    description: "Clothing, shoes and fashion accessories",
-    products: 35,
-    status: "Active",
-    createdAt: "May 25, 2024",
-    icon: Shirt,
-    iconBg: "bg-orange-50",
-    iconColor: "text-orange-600",
-  },
-  {
-    id: 3,
-    name: "Home & Living",
-    description: "Home decor, kitchen and living essentials",
-    products: 22,
-    status: "Active",
-    createdAt: "May 24, 2024",
-    icon: Sofa,
-    iconBg: "bg-purple-50",
-    iconColor: "text-purple-600",
-  },
-  {
-    id: 4,
-    name: "Beauty & Personal Care",
-    description: "Skincare, makeup and personal care",
-    products: 18,
-    status: "Active",
-    createdAt: "May 22, 2024",
-    icon: ShoppingBag,
-    iconBg: "bg-yellow-50",
-    iconColor: "text-yellow-600",
-  },
-  {
-    id: 5,
-    name: "Sports & Outdoors",
-    description: "Sports gear and outdoor equipment",
-    products: 15,
-    status: "Active",
-    createdAt: "May 20, 2024",
-    icon: Dumbbell,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
-  },
-  {
-    id: 6,
-    name: "Books & Stationery",
-    description: "Books, magazines and stationery items",
-    products: 12,
-    status: "Inactive",
-    createdAt: "May 18, 2024",
-    icon: BookOpen,
-    iconBg: "bg-red-50",
-    iconColor: "text-red-500",
-  },
-];
 
-const Category = () => {
+
+
+const Category =  () => {
+  
+  const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All Status");
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  
+
+  // ================= FETCH CATEGORIES =================
+
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "http://localhost:5000/api/v1/categories"
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setCategories(result.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCategories();
+}, []);
+
+  // ================= FILTER =================
 
   const filteredCategories = useMemo(() => {
     return categories.filter((category) => {
       const matchesSearch =
         category.name.toLowerCase().includes(search.toLowerCase()) ||
-        category.description.toLowerCase().includes(search.toLowerCase());
+        (category.description || "")
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
       const matchesStatus =
-        status === "All Status" || category.status === status;
+        status === "All Status" ||
+        category.status.toUpperCase() === status.toUpperCase();
 
       return matchesSearch && matchesStatus;
     });
-  }, [search, status]);
+  }, [categories, search, status]);
 
-  const handleEdit = (category: (typeof categories)[number]) => {
+  // ================= ICON =================
+
+  const getCategoryIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+
+    if (lowerName.includes("electronic")) {
+      return {
+        Icon: Headphones,
+        bg: "bg-teal-50",
+        color: "text-teal-600",
+      };
+    }
+
+    if (lowerName.includes("fashion")) {
+      return {
+        Icon: Shirt,
+        bg: "bg-orange-50",
+        color: "text-orange-600",
+      };
+    }
+
+    if (lowerName.includes("home")) {
+      return {
+        Icon: Sofa,
+        bg: "bg-purple-50",
+        color: "text-purple-600",
+      };
+    }
+
+    if (lowerName.includes("beauty")) {
+      return {
+        Icon: ShoppingBag,
+        bg: "bg-yellow-50",
+        color: "text-yellow-600",
+      };
+    }
+
+    if (lowerName.includes("sport")) {
+      return {
+        Icon: Dumbbell,
+        bg: "bg-blue-50",
+        color: "text-blue-600",
+      };
+    }
+
+    return {
+      Icon: BookOpen,
+      bg: "bg-red-50",
+      color: "text-red-500",
+    };
+  };
+
+  // ================= EDIT =================
+
+  const handleEdit = (category: Category) => {
     console.log("Edit category:", category);
   };
 
-  const handleDelete = (id: number) => {
-    console.log("Delete category:", id);
+  // ================= DELETE =================
+
+  const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/v1/categories/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete category");
+      }
+
+      // UI থেকে সাথে সাথে remove
+      setCategories((prev) =>
+        prev.filter((category) => category.id !== id)
+      );
+
+    } catch (error) {
+      console.error("Delete category error:", error);
+      alert("Failed to delete category");
+    }
   };
 
   return (
@@ -116,13 +172,13 @@ const Category = () => {
       <div className="mx-auto max-w-350">
 
         {/* ================= HEADER ================= */}
+
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-[#172033] sm:text-3xl">
               Categories
             </h1>
 
-            {/* Breadcrumb */}
             <div className="mt-1.5 flex items-center gap-2 text-xs text-gray-500">
               <span>Home</span>
               <span>›</span>
@@ -142,12 +198,15 @@ const Category = () => {
         </div>
 
         {/* ================= MAIN CARD ================= */}
+
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
           {/* ================= FILTER BAR ================= */}
+
           <div className="flex flex-col gap-3 border-b border-gray-100 p-4 lg:flex-row lg:items-center">
 
             {/* Search */}
+
             <div className="relative w-full lg:max-w-95">
               <Search
                 size={17}
@@ -164,6 +223,7 @@ const Category = () => {
             </div>
 
             {/* Status */}
+
             <div className="relative w-full sm:w-36.25">
               <select
                 value={status}
@@ -181,10 +241,8 @@ const Category = () => {
               />
             </div>
 
-            {/* Spacer */}
             <div className="hidden flex-1 lg:block" />
 
-            {/* Filters */}
             <button
               type="button"
               className="flex h-10 w-fit items-center gap-2 rounded-md border border-gray-200 px-4 text-sm font-medium text-gray-600 transition hover:border-gray-300 hover:bg-gray-50"
@@ -195,12 +253,13 @@ const Category = () => {
           </div>
 
           {/* ================= TABLE ================= */}
+
           <div className="overflow-x-auto">
             <table className="w-full min-w-225 border-collapse">
 
-              {/* Table Header */}
               <thead>
                 <tr className="border-b border-gray-100 bg-[#FCFDFE]">
+
                   <th className="px-5 py-3.5 text-left text-xs font-semibold text-[#26334A]">
                     Category
                   </th>
@@ -224,56 +283,97 @@ const Category = () => {
                   <th className="px-5 py-3.5 text-center text-xs font-semibold text-[#26334A]">
                     Actions
                   </th>
+
                 </tr>
               </thead>
 
-              {/* Table Body */}
               <tbody>
-                {filteredCategories.length > 0 ? (
+
+                {/* LOADING */}
+
+                {loading && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-5 py-12 text-center text-sm text-gray-500"
+                    >
+                      Loading categories...
+                    </td>
+                  </tr>
+                )}
+
+                {/* ERROR */}
+
+                {!loading && error && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-5 py-12 text-center text-sm text-red-500"
+                    >
+                      {error}
+                    </td>
+                  </tr>
+                )}
+
+                {/* DATA */}
+
+                {!loading &&
+                  !error &&
+                  filteredCategories.length > 0 &&
                   filteredCategories.map((category) => {
-                    const Icon = category.icon;
+
+                    const { Icon, bg, color } =
+                      getCategoryIcon(category.name);
 
                     return (
                       <tr
                         key={category.id}
                         className="border-b border-gray-100 transition hover:bg-gray-50/70"
                       >
+
                         {/* Category */}
+
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
+
                             <div
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${category.iconBg}`}
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${bg}`}
                             >
                               <Icon
                                 size={19}
                                 strokeWidth={1.8}
-                                className={category.iconColor}
+                                className={color}
                               />
                             </div>
 
                             <span className="text-sm font-semibold text-[#172033]">
                               {category.name}
                             </span>
+
                           </div>
                         </td>
 
                         {/* Description */}
+
                         <td className="px-5 py-3.5">
                           <p className="max-w-87.5 truncate text-sm text-gray-500">
-                            {category.description}
+                            {category.description || "No description"}
                           </p>
                         </td>
 
-                        {/* Products */}
+                        {/* PRODUCTS COUNT */}
+
                         <td className="px-5 py-3.5 text-center">
                           <span className="text-sm font-medium text-[#26334A]">
-                            {category.products}
+                            {category._count.products}
                           </span>
                         </td>
 
-                        {/* Status */}
+                        {/* STATUS */}
+
                         <td className="px-5 py-3.5">
-                          {category.status === "Active" ? (
+
+                          {category.status.toUpperCase() === "ACTIVE" ? (
                             <span className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
                               Active
                             </span>
@@ -282,20 +382,30 @@ const Category = () => {
                               Inactive
                             </span>
                           )}
+
                         </td>
 
-                        {/* Created At */}
+                        {/* CREATED AT */}
+
                         <td className="px-5 py-3.5">
                           <span className="text-sm text-gray-500">
-                            {category.createdAt}
+                            {new Date(
+                              category.createdAt
+                            ).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
                           </span>
                         </td>
 
-                        {/* Actions */}
+                        {/* ACTIONS */}
+
                         <td className="px-5 py-3.5">
                           <div className="flex items-center justify-center gap-2">
 
-                            {/* Edit */}
+                            {/* EDIT */}
+
                             <button
                               type="button"
                               onClick={() => handleEdit(category)}
@@ -305,10 +415,13 @@ const Category = () => {
                               <Pencil size={15} />
                             </button>
 
-                            {/* Delete */}
+                            {/* DELETE */}
+
                             <button
                               type="button"
-                              onClick={() => handleDelete(category.id)}
+                              onClick={() =>
+                                handleDelete(category.id)
+                              }
                               aria-label={`Delete ${category.name}`}
                               className="flex h-9 w-9 items-center justify-center rounded-md border border-red-100 text-red-500 transition hover:bg-red-50"
                             >
@@ -317,27 +430,34 @@ const Category = () => {
 
                           </div>
                         </td>
+
                       </tr>
                     );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-5 py-12 text-center text-sm text-gray-500"
-                    >
-                      No categories found.
-                    </td>
-                  </tr>
-                )}
+                  })}
+
+                {/* NO DATA */}
+
+                {!loading &&
+                  !error &&
+                  filteredCategories.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-5 py-12 text-center text-sm text-gray-500"
+                      >
+                        No categories found.
+                      </td>
+                    </tr>
+                  )}
+
               </tbody>
             </table>
           </div>
 
-          {/* ================= FOOTER / PAGINATION ================= */}
+          {/* ================= FOOTER ================= */}
+
           <div className="flex flex-col gap-4 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
-            {/* Result Count */}
             <p className="text-xs text-gray-500">
               Showing{" "}
               <span className="font-medium text-gray-700">
@@ -354,7 +474,6 @@ const Category = () => {
 
             <div className="flex items-center gap-3">
 
-              {/* Previous */}
               <button
                 type="button"
                 disabled
@@ -363,7 +482,6 @@ const Category = () => {
                 <ChevronLeft size={16} />
               </button>
 
-              {/* Current Page */}
               <button
                 type="button"
                 className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0F766E] text-sm font-medium text-white"
@@ -371,7 +489,6 @@ const Category = () => {
                 1
               </button>
 
-              {/* Next */}
               <button
                 type="button"
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:bg-gray-50"
@@ -379,7 +496,6 @@ const Category = () => {
                 <ChevronRight size={16} />
               </button>
 
-              {/* Per Page */}
               <button
                 type="button"
                 className="flex h-9 items-center gap-2 rounded-md border border-gray-200 px-3 text-xs text-gray-600"
@@ -387,8 +503,10 @@ const Category = () => {
                 10 / page
                 <ChevronDown size={14} />
               </button>
+
             </div>
           </div>
+
         </div>
       </div>
     </div>
