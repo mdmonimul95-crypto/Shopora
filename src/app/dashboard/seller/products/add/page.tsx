@@ -34,6 +34,11 @@ interface Category {
   status?: string;
 }
 
+interface Brand {
+  id: string;
+  name: string;
+}
+
 type GenerateType = "short" | "long" | null;
 
 /* =========================================================
@@ -89,6 +94,12 @@ const AddNewProduct = () => {
   const [categoryLoading, setCategoryLoading] =
     useState(false);
 
+  const [brands, setBrands] =
+    useState<Brand[]>([]);
+
+  const [brandLoading, setBrandLoading] =
+    useState(false);
+
   const [generatingType, setGeneratingType] =
     useState<GenerateType>(null);
 
@@ -96,17 +107,17 @@ const AddNewProduct = () => {
     useState(false);
 
   /* =======================================================
-     FETCH CATEGORIES
+     FETCH CATEGORIES + BRANDS (in parallel)
   ======================================================== */
 
   useEffect(() => {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:5000";
+
     const fetchCategories = async () => {
       try {
         setCategoryLoading(true);
-
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          "http://localhost:5000";
 
         const response = await fetch(
           `${API_URL}/api/v1/categories`,
@@ -145,7 +156,53 @@ const AddNewProduct = () => {
       }
     };
 
-    fetchCategories();
+    const fetchBrands = async () => {
+      try {
+        setBrandLoading(true);
+
+        const response = await fetch(
+          `${API_URL}/api/v1/brands`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            cache: "no-store",
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message ||
+              "Failed to fetch brands"
+          );
+        }
+
+        if (result.success) {
+          setBrands(result.data || []);
+        }
+      } catch (error) {
+        console.error(
+          "FAILED TO FETCH BRANDS:",
+          error
+        );
+
+        toast.error(
+          "Failed to load brands."
+        );
+      } finally {
+        setBrandLoading(false);
+      }
+    };
+
+    // Run both requests concurrently instead of one after another,
+    // since neither depends on the other's result.
+    Promise.all([
+      fetchCategories(),
+      fetchBrands(),
+    ]);
   }, []);
 
   /* =======================================================
@@ -764,32 +821,34 @@ const AddNewProduct = () => {
                           onChange={
                             handleChange
                           }
-                          className="w-full appearance-none rounded-lg border border-[#DDE5E5] bg-white px-3 py-3 pr-10 text-[14px] text-[#1E293B] outline-none transition-all focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+                          disabled={
+                            brandLoading
+                          }
+                          className="w-full appearance-none rounded-lg border border-[#DDE5E5] bg-white px-3 py-3 pr-10 text-[14px] text-[#1E293B] outline-none transition-all focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 disabled:cursor-not-allowed disabled:bg-[#F8FAFA]"
                         >
 
                           <option value="">
-                            Select brand
+                            {brandLoading
+                              ? "Loading brands..."
+                              : "Select brand"}
                           </option>
 
-                          <option value="Apple">
-                            Apple
-                          </option>
-
-                          <option value="Samsung">
-                            Samsung
-                          </option>
-
-                          <option value="Sony">
-                            Sony
-                          </option>
-
-                          <option value="Nike">
-                            Nike
-                          </option>
-
-                          <option value="Adidas">
-                            Adidas
-                          </option>
+                          {brands.map(
+                            (brand) => (
+                              <option
+                                key={
+                                  brand.id
+                                }
+                                value={
+                                  brand.name
+                                }
+                              >
+                                {
+                                  brand.name
+                                }
+                              </option>
+                            )
+                          )}
 
                         </select>
 

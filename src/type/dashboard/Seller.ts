@@ -68,13 +68,13 @@ export type CouponType = "Percentage" | "Fixed Amount" | "Free Shipping";
 
 
 export type Brand = {
-  id: number;
+  id: string;
   name: string;
-  description: string;
+  description: string | null;
   products: number;
   status: "Active" | "Inactive";
   createdAt: string;
-  logo: string;
+  logo: string | null;
 };
 
 
