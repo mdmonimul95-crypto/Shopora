@@ -43,7 +43,7 @@ const Brands = () => {
       try {
         setLoading(true);
 
-        const response = await fetch("http://localhost:5000/api/v1/brands");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/brands`);
 
         const result = await response.json();
 
@@ -138,7 +138,7 @@ const Brands = () => {
       setIsSaving(true);
       setFormError("");
 
-      const response = await fetch("http://localhost:5000/api/v1/brands", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/brands`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -192,7 +192,7 @@ const Brands = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/v1/brands/${brand.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/brands/${brand.id}`,
         { method: "DELETE" }
       );
 

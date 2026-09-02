@@ -41,7 +41,7 @@ useEffect(() => {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost:5000/api/v1/categories"
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`
       );
 
       const result = await response.json();
@@ -146,7 +146,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/v1/categories/${id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories/${id}`,
         {
           method: "DELETE",
         }
