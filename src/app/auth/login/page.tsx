@@ -66,8 +66,8 @@ const Login = () => {
   rememberMe: remember,
 });
 
-    console.log("Login response:", data);
-    console.log("Login error:", error);
+    // console.log("Login response:", data);
+    // console.log("Login error:", error);
 
     if (error) {
       toast.error(
