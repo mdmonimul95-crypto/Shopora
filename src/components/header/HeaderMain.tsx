@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 import {
   Heart,
   Search,
@@ -18,8 +21,6 @@ import {
   Settings,
 } from "lucide-react";
 
-
-import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 
 interface HeaderMainProps {
@@ -34,13 +35,33 @@ const HeaderMain = ({
   onCategoryToggle,
 }: HeaderMainProps) => {
   const [accountOpen, setAccountOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const router = useRouter();
 
   // Better Auth Session
   const { data: session } = authClient.useSession();
-
   const user = session?.user;
 
-  const dashboardPath = user?.role === "Seller" ? "/dashboard/seller" : user?.role === "Admin" ? "/dashboard/admin" : "/dashboard/customer"
+  const dashboardPath =
+    user?.role === "Seller"
+      ? "/dashboard/seller"
+      : user?.role === "Admin"
+        ? "/dashboard/admin"
+        : "/dashboard/customer";
+
+  // Search Handler
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const query = search.trim();
+
+    if (!query) return;
+
+    router.push(`/products/search?q=${encodeURIComponent(query)}`);
+
+    setSearch("");
+  };
 
   return (
     <>
@@ -49,7 +70,6 @@ const HeaderMain = ({
       ====================================================== */}
       <div className="hidden lg:block">
         <div className="mx-auto flex max-w-7xl items-center gap-7 px-4 py-5">
-
           {/* =================================================
               LOGO
           ================================================== */}
@@ -58,7 +78,6 @@ const HeaderMain = ({
             className="flex w-43.75 shrink-0 items-center gap-2.5"
           >
             <div className="relative flex h-12 w-10 items-end justify-center rounded-lg bg-[#0F766E] shadow-sm">
-
               {/* Bag Handle */}
               <div className="absolute -top-2 left-1/2 h-5 w-5 -translate-x-1/2 rounded-t-full border-[3px] border-b-0 border-[#0F766E]" />
 
@@ -79,51 +98,34 @@ const HeaderMain = ({
           </Link>
 
           {/* =================================================
-              SEARCH
+              DESKTOP SEARCH
           ================================================== */}
-          <div className="flex h-11 flex-1 overflow-hidden rounded-lg border border-[#E2E8F0] bg-white">
-
+          <form
+            onSubmit={handleSearch}
+            className="flex h-11 flex-1 overflow-hidden rounded-lg border border-[#E2E8F0] bg-white"
+          >
             <input
               type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for products, brands and more..."
               className="min-w-0 flex-1 bg-transparent px-4 font-['Poppins'] text-[14px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
             />
 
-            {/* All Categories */}
-            {/* <button
-              type="button"
-              onClick={onCategoryToggle}
-              className="hidden items-center gap-1 border-l border-[#E8EEEE] px-4 font-['Poppins'] text-[14px] font-medium text-[#475569] transition-colors hover:text-[#0F766E] xl:flex"
-            >
-              All Categories
-
-              <span
-                className={`transition-transform duration-300 ${
-                  categoryOpen ? "rotate-180" : ""
-                }`}
-              >
-                ↓
-              </span>
-            </button> */}
-
-            {/* Search */}
+            {/* Search Button */}
             <button
-              type="button"
+              type="submit"
               aria-label="Search"
               className="flex w-11 items-center justify-center bg-[#0F766E] text-white transition-colors duration-300 hover:bg-[#0B625B]"
             >
-              <Search
-                size={18}
-                strokeWidth={1.8}
-              />
+              <Search size={18} strokeWidth={1.8} />
             </button>
-          </div>
+          </form>
 
           {/* =================================================
               ACTIONS
           ================================================== */}
           <div className="flex shrink-0 items-center gap-5">
-
             {/* Wishlist */}
             <Link
               href="/wishlist"
@@ -179,8 +181,7 @@ const HeaderMain = ({
                 {user ? (
                   <>
                     {/* Avatar */}
-                    <div className="flex flex-col h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
-
+                    <div className="flex h-10 w-10 flex-col items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
                       {user.image ? (
                         <Image
                           src={user.image}
@@ -196,11 +197,10 @@ const HeaderMain = ({
                           className="text-[#0F766E]"
                         />
                       )}
-
                     </div>
 
                     {/* User Name */}
-                    <div className="hidden text-left  xl:block">
+                    <div className="hidden text-left xl:block">
                       <p className="font-['Poppins'] text-[14px] font-semibold leading-5 text-[#1E293B]">
                         {user.name || "User"}
                       </p>
@@ -224,8 +224,6 @@ const HeaderMain = ({
                     </span>
                   </>
                 )}
-
-                
               </button>
 
               {/* =================================================
@@ -238,14 +236,10 @@ const HeaderMain = ({
                     : "invisible translate-y-2 opacity-0"
                 }`}
               >
-
-              
-
                 {user ? (
                   <>
                     {/* Logged In Header */}
                     <div className="border-b border-[#E8EEEE] px-3 pb-3">
-
                       <p className="font-['Poppins'] text-sm text-[#475569]">
                         Welcome back,
                       </p>
@@ -253,11 +247,9 @@ const HeaderMain = ({
                       <p className="mt-1 font-['Poppins'] text-lg font-semibold text-[#0F766E]">
                         {user.name || "User"}
                       </p>
-
                     </div>
 
                     {/* Dashboard */}
-                  
                     <Link
                       href={dashboardPath}
                       className="mt-2 flex w-full items-center gap-3 rounded-lg bg-[#E8F5F3] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#1E293B] transition-colors hover:bg-[#D9EFEC]"
@@ -267,7 +259,6 @@ const HeaderMain = ({
                         strokeWidth={1.7}
                         className="text-[#0F766E]"
                       />
-
                       Dashboard
                     </Link>
 
@@ -276,11 +267,7 @@ const HeaderMain = ({
                       href="/orders"
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
                     >
-                      <Package
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <Package size={19} strokeWidth={1.7} />
                       My Orders
                     </Link>
 
@@ -289,11 +276,7 @@ const HeaderMain = ({
                       href="/wishlist"
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
                     >
-                      <Heart
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <Heart size={19} strokeWidth={1.7} />
                       My Wishlist
                     </Link>
 
@@ -302,11 +285,7 @@ const HeaderMain = ({
                       href="/coupons"
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
                     >
-                      <Ticket
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <Ticket size={19} strokeWidth={1.7} />
                       My Coupons
                     </Link>
 
@@ -315,11 +294,7 @@ const HeaderMain = ({
                       href="/addresses"
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
                     >
-                      <MapPin
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <MapPin size={19} strokeWidth={1.7} />
                       Addresses
                     </Link>
 
@@ -328,11 +303,7 @@ const HeaderMain = ({
                       href="/account/settings"
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
                     >
-                      <Settings
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <Settings size={19} strokeWidth={1.7} />
                       Account Settings
                     </Link>
 
@@ -345,11 +316,7 @@ const HeaderMain = ({
                       }}
                       className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm font-medium text-[#FF6B6B] transition-colors hover:bg-[#FFF1F1]"
                     >
-                      <LogOut
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <LogOut size={19} strokeWidth={1.7} />
                       Logout
                     </button>
                   </>
@@ -357,7 +324,6 @@ const HeaderMain = ({
                   <>
                     {/* Logged Out Header */}
                     <div className="border-b border-[#E8EEEE] px-3 pb-3">
-
                       <p className="font-['Poppins'] text-sm font-medium text-[#1E293B]">
                         Welcome to Shopora
                       </p>
@@ -365,7 +331,6 @@ const HeaderMain = ({
                       <p className="mt-1 font-['Poppins'] text-xs leading-5 text-[#64748B]">
                         Sign in or create an account to continue.
                       </p>
-
                     </div>
 
                     {/* Login */}
@@ -374,11 +339,7 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="mt-3 flex w-full items-center gap-3 rounded-lg bg-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-white transition-colors hover:bg-[#0B625B]"
                     >
-                      <LogIn
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <LogIn size={19} strokeWidth={1.7} />
                       Login
                     </Link>
 
@@ -388,16 +349,11 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="mt-2 flex w-full items-center gap-3 rounded-lg border border-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#0F766E] transition-colors hover:bg-[#E8F5F3]"
                     >
-                      <UserPlus
-                        size={19}
-                        strokeWidth={1.7}
-                      />
-
+                      <UserPlus size={19} strokeWidth={1.7} />
                       Register
                     </Link>
                   </>
                 )}
-
               </div>
             </div>
           </div>
@@ -408,12 +364,9 @@ const HeaderMain = ({
           MOBILE MAIN HEADER
       ====================================================== */}
       <div className="lg:hidden">
-
         <div className="flex h-15.5 items-center justify-between border-b border-[#E8EEEE] px-4">
-
           {/* Left */}
           <div className="flex items-center gap-3">
-
             {/* Menu */}
             <button
               type="button"
@@ -421,18 +374,12 @@ const HeaderMain = ({
               onClick={onMenuOpen}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-[#475569] transition-colors hover:bg-[#F6FAF9] hover:text-[#0F766E]"
             >
-              <span className="text-xl leading-none">
-                ☰
-              </span>
+              <span className="text-xl leading-none">☰</span>
             </button>
 
             {/* Logo */}
-            <Link
-              href="/"
-              className="flex items-center gap-2"
-            >
+            <Link href="/" className="flex items-center gap-2">
               <div className="relative flex h-9 w-8 items-end justify-center rounded-md bg-[#0F766E]">
-
                 <div className="absolute -top-1.5 left-1/2 h-3.5 w-4 -translate-x-1/2 rounded-t-full border-2 border-b-0 border-[#0F766E]" />
 
                 <span className="mb-0.5 font-['Poppins'] text-xl font-bold leading-none text-[#FF6B6B]">
@@ -454,17 +401,13 @@ const HeaderMain = ({
 
           {/* Right */}
           <div className="flex items-center gap-3">
-
             {/* Wishlist */}
             <Link
               href="/wishlist"
               aria-label="Wishlist"
               className="text-[#475569]"
             >
-              <Heart
-                size={20}
-                strokeWidth={1.7}
-              />
+              <Heart size={20} strokeWidth={1.7} />
             </Link>
 
             {/* Cart */}
@@ -473,10 +416,7 @@ const HeaderMain = ({
               aria-label="Cart"
               className="relative text-[#475569]"
             >
-              <ShoppingCart
-                size={20}
-                strokeWidth={1.7}
-              />
+              <ShoppingCart size={20} strokeWidth={1.7} />
 
               <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6B6B] font-['Poppins'] text-[7px] font-semibold text-white">
                 3
@@ -487,7 +427,6 @@ const HeaderMain = ({
                 MOBILE ACCOUNT
             ================================================== */}
             <div className="relative">
-
               <button
                 type="button"
                 aria-label="Account"
@@ -496,7 +435,6 @@ const HeaderMain = ({
               >
                 {user ? (
                   <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-[#0F766E] bg-[#E8F5F3]">
-
                     {user.image ? (
                       <Image
                         src={user.image}
@@ -505,7 +443,6 @@ const HeaderMain = ({
                         height={150}
                         width={150}
                       />
-                      
                     ) : (
                       <UserRound
                         size={17}
@@ -513,13 +450,9 @@ const HeaderMain = ({
                         className="text-[#0F766E]"
                       />
                     )}
-
                   </div>
                 ) : (
-                  <UserRound
-                    size={20}
-                    strokeWidth={1.7}
-                  />
+                  <UserRound size={20} strokeWidth={1.7} />
                 )}
 
                 <ChevronDown
@@ -539,12 +472,10 @@ const HeaderMain = ({
                     : "invisible translate-y-2 opacity-0"
                 }`}
               >
-
                 {user ? (
                   <>
                     {/* User */}
                     <div className="border-b border-[#E8EEEE] px-3 pb-3">
-
                       <p className="font-['Poppins'] text-xs text-[#475569]">
                         Welcome back,
                       </p>
@@ -552,12 +483,11 @@ const HeaderMain = ({
                       <p className="mt-1 font-['Poppins'] text-base font-semibold text-[#0F766E]">
                         {user.name || "User"}
                       </p>
-
                     </div>
 
                     {/* Dashboard */}
                     <Link
-                      href="/dashboard"
+                      href={dashboardPath}
                       onClick={() => setAccountOpen(false)}
                       className="mt-2 flex items-center gap-3 rounded-lg bg-[#E8F5F3] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#1E293B]"
                     >
@@ -565,7 +495,6 @@ const HeaderMain = ({
                         size={18}
                         className="text-[#0F766E]"
                       />
-
                       Dashboard
                     </Link>
 
@@ -575,10 +504,7 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] hover:bg-[#F6FAF9]"
                     >
-                      <Package
-                        size={18}
-                      />
-
+                      <Package size={18} />
                       My Orders
                     </Link>
 
@@ -588,10 +514,7 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] hover:bg-[#F6FAF9]"
                     >
-                      <Heart
-                        size={18}
-                      />
-
+                      <Heart size={18} />
                       My Wishlist
                     </Link>
 
@@ -601,10 +524,7 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="flex items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] hover:bg-[#F6FAF9]"
                     >
-                      <Settings
-                        size={18}
-                      />
-
+                      <Settings size={18} />
                       Account Settings
                     </Link>
 
@@ -617,10 +537,7 @@ const HeaderMain = ({
                       }}
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm font-medium text-[#FF6B6B] hover:bg-[#FFF1F1]"
                     >
-                      <LogOut
-                        size={18}
-                      />
-
+                      <LogOut size={18} />
                       Logout
                     </button>
                   </>
@@ -628,7 +545,6 @@ const HeaderMain = ({
                   <>
                     {/* Welcome */}
                     <div className="border-b border-[#E8EEEE] px-3 pb-3">
-
                       <p className="font-['Poppins'] text-sm font-medium text-[#1E293B]">
                         Welcome to Shopora
                       </p>
@@ -636,7 +552,6 @@ const HeaderMain = ({
                       <p className="mt-1 font-['Poppins'] text-xs leading-5 text-[#64748B]">
                         Sign in or create an account to continue.
                       </p>
-
                     </div>
 
                     {/* Login */}
@@ -645,10 +560,7 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="mt-3 flex items-center gap-3 rounded-lg bg-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-white"
                     >
-                      <LogIn
-                        size={18}
-                      />
-
+                      <LogIn size={18} />
                       Login
                     </Link>
 
@@ -658,15 +570,11 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="mt-2 flex items-center gap-3 rounded-lg border border-[#0F766E] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#0F766E]"
                     >
-                      <UserPlus
-                        size={18}
-                      />
-
+                      <UserPlus size={18} />
                       Register
                     </Link>
                   </>
                 )}
-
               </div>
             </div>
           </div>
@@ -676,26 +584,26 @@ const HeaderMain = ({
             MOBILE SEARCH
         ================================================== */}
         <div className="border-b border-[#E8EEEE] px-4 py-3">
-
-          <div className="flex h-10 overflow-hidden rounded-lg border border-[#E2E8F0]">
-
+          <form
+            onSubmit={handleSearch}
+            className="flex h-10 overflow-hidden rounded-lg border border-[#E2E8F0]"
+          >
             <input
               type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products, brands and more..."
               className="min-w-0 flex-1 bg-transparent px-3 font-['Poppins'] text-[10px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
             />
 
             <button
-              type="button"
+              type="submit"
               aria-label="Search"
               className="flex w-10 items-center justify-center bg-[#0F766E] text-white"
             >
-              <Search
-                size={17}
-              />
+              <Search size={17} />
             </button>
-
-          </div>
+          </form>
         </div>
       </div>
     </>
