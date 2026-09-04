@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChevronRight, Package, Search } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { getSellerOrders } from "@/lib/api/sellerOrders";
+import Link from "next/link";
 
 /* =========================================================
    TYPES
@@ -308,18 +309,14 @@ const OrdersPage = () => {
                   : `${order.items.length} Items`;
 
               return (
-
                 <div
                   key={order.id}
                   className="grid grid-cols-[56px_1fr_auto_20px] items-center gap-3 border-b border-[#EEF2F2] py-4 last:border-b-0 sm:grid-cols-[62px_1fr_120px_100px_20px]"
                 >
-
                   {/* Product Image */}
 
                   <div className="flex h-12 w-14 items-center justify-center overflow-hidden rounded-lg border border-[#E8EEEE] bg-white">
-
                     {firstItem?.productImage ? (
-
                       <Image
                         src={firstItem.productImage}
                         alt={firstItem.productName}
@@ -327,53 +324,40 @@ const OrdersPage = () => {
                         height={512}
                         width={512}
                       />
-
                     ) : (
-
-                      <Package
-                        size={20}
-                        className="text-[#94A3B8]"
-                      />
-
+                      <Package size={20} className="text-[#94A3B8]" />
                     )}
-
                   </div>
 
                   {/* Order Info */}
 
                   <div className="min-w-0">
-
-                    <p className="truncate font-['Poppins'] text-[14px] font-semibold text-[#0F766E]">
+                    <Link
+                      href={`/dashboard/seller/orders/${order.id}`}
+                      className="block truncate font-['Poppins'] text-[14px] font-semibold text-[#0F766E] transition hover:underline"
+                    >
                       Order #{order.orderNumber}
-                    </p>
+                    </Link>
 
                     <p className="mt-1 truncate font-['Poppins'] text-[14px] text-[#334155]">
-
                       {firstItem?.productName}
 
                       {order.items.length > 1 &&
                         ` + ${order.items.length - 1} more`}
-
                     </p>
 
                     <p className="mt-1 font-['Poppins'] text-[14px] text-[#64748B]">
-
-                      {new Date(
-                        order.createdAt
-                      ).toLocaleDateString("en-US", {
+                      {new Date(order.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
                       })}
-
                     </p>
-
                   </div>
 
                   {/* Price */}
 
                   <div className="hidden sm:block">
-
                     <p className="font-['Poppins'] text-[14px] font-semibold text-[#1E293B]">
                       ${order.total.toFixed(2)}
                     </p>
@@ -381,26 +365,25 @@ const OrdersPage = () => {
                     <p className="mt-1 font-['Poppins'] text-[14px] text-[#64748B]">
                       {itemsLabel}
                     </p>
-
                   </div>
 
                   {/* Status */}
 
                   <span
                     className={`hidden w-fit rounded-md px-3 py-1.5 font-['Poppins'] text-[14px] font-medium sm:inline-flex ${getStatusClass(
-                      order.status
+                      order.status,
                     )}`}
                   >
                     {statusLabel[order.status]}
                   </span>
 
-                  <ChevronRight
-                    size={18}
-                    className="text-[#475569]"
-                  />
-
+                  <Link
+                    href={`/dashboard/seller/orders/${order.id}`}
+                    className="flex items-center justify-center text-[#475569] transition hover:text-[#0F766E]"
+                  >
+                    <ChevronRight size={18} />
+                  </Link>
                 </div>
-
               );
             })}
 
