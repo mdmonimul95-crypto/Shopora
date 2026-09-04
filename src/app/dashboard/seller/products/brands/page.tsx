@@ -430,22 +430,22 @@ const Brands = () => {
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-2">
                         {/* View */}
-                        <button
+                        {/* <button
                           type="button"
                           title="View brand"
                           className="flex h-8 w-8 items-center justify-center rounded-md border border-[#DDE3EA] text-[#475569] transition hover:border-[#0F766E] hover:bg-[#F0FDFA] hover:text-[#0F766E]"
                         >
                           <Eye size={14} />
-                        </button>
+                        </button> */}
 
                         {/* Edit */}
-                        <button
+                        {/* <button
                           type="button"
                           title="Edit brand"
                           className="flex h-8 w-8 items-center justify-center rounded-md border border-[#DDE3EA] text-[#475569] transition hover:border-[#0F766E] hover:bg-[#F0FDFA] hover:text-[#0F766E]"
                         >
                           <Pencil size={14} />
-                        </button>
+                        </button> */}
 
                         {/* Delete */}
                         <button
