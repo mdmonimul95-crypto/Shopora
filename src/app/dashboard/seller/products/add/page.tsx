@@ -17,6 +17,7 @@ import { generateProductDescription } from "@/lib/ai";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 
 /* =========================================================
    TYPES
@@ -53,6 +54,9 @@ const initialImages: ProductImage[] = [];
 
 const AddNewProduct = () => {
   const router = useRouter();
+  const {data:session} = useSession();
+  const sellerId = session?.user?.id;
+
 
   /* =======================================================
      FORM STATE
@@ -464,6 +468,11 @@ const AddNewProduct = () => {
       return;
     }
 
+    if(!sellerId){
+      toast.error("Seller session not found.")
+      return
+    }
+
     try {
       setSaving(true);
 
@@ -504,6 +513,7 @@ const AddNewProduct = () => {
           images.map(
             (image) => image.url
           ),
+          sellerId: sellerId,
       };
 
       await createProduct(
@@ -520,16 +530,21 @@ const AddNewProduct = () => {
         );
       }, 1500);
     } catch (error) {
-      console.error(
-        "FAILED TO CREATE PRODUCT:",
-        error
-      );
 
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to add product"
-      );
+
+       if (
+  error instanceof Error &&
+  (
+    error.message.includes("Product_sku_key") ||
+    error.message.includes("Unique constraint failed")
+  )
+) {
+  toast.error("Please add a unique SKU.");
+  return;
+}
+
+
+
     } finally {
       setSaving(false);
     }
