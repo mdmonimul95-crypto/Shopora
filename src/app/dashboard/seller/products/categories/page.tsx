@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   SlidersHorizontal,
-  Pencil,
   Trash2,
   Headphones,
   Shirt,
