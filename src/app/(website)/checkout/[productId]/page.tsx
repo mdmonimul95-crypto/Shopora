@@ -138,7 +138,7 @@ const [orderError, setOrderError] = useState("");
     toast.success("Order has been placed!");
 
     setTimeout(() => {
-      router.push("/orders");
+      router.push("/dashboard/customer/my-order");
     }, 1000);
 
   } catch (error) {
