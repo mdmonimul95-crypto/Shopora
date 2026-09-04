@@ -57,3 +57,50 @@ export const apiPost = async <T>(
       : new Error("Something went wrong");
   }
 };
+
+
+export const apiGet = async <T>( path: string): Promise<T> => {
+  try {
+    if (!baseUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL is not defined");
+    }
+
+    const url = `${baseUrl}${path}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
+
+    const responseText = await response.text();
+
+    let result: T & { message?: string };
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        `Server returned invalid JSON. Status: ${response.status}. Response: ${responseText.slice(
+          0,
+          300
+        )}`
+      );
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result?.message ||
+          `Request failed with status ${response.status}`
+      );
+    }
+
+    return result;
+  } catch (error) {
+    throw error instanceof Error
+      ? error
+      : new Error("Something went wrong");
+  }
+};
