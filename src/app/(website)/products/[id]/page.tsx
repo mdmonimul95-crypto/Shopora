@@ -19,12 +19,13 @@ import {
   Star,
 } from "lucide-react";
 import { homePageSingleProduct } from "@/type/homePage";
+import { useRouter } from "next/navigation";
 
 
 
 const SingleProduct = () => {
   const params = useParams();
-
+const router = useRouter();
   const productId = params.id as string;
 
   const [product, setProduct] = useState<homePageSingleProduct | null>(null);
@@ -404,6 +405,7 @@ const SingleProduct = () => {
 
               <button
                 type="button"
+                onClick={() => router.push(`/checkout/${product.id}`)}
                 disabled={product.stockQuantity <= 0}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#0F766E] px-5 py-3 font-['Poppins'] text-base font-semibold text-white transition-all hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:bg-[#CBD5E1]"
               >
