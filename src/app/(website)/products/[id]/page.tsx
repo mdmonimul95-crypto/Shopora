@@ -20,12 +20,17 @@ import {
 } from "lucide-react";
 import { homePageSingleProduct } from "@/type/homePage";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import { addToWishlist, checkWishlist} from "@/lib/api/wishlist";
+import toast from "react-hot-toast";
 
 
 
 const SingleProduct = () => {
   const params = useParams();
 const router = useRouter();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const productId = params.id as string;
 
   const [product, setProduct] = useState<homePageSingleProduct | null>(null);
@@ -36,6 +41,9 @@ const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   /* =========================================================
      FETCH PRODUCT BY ID
@@ -90,6 +98,56 @@ const router = useRouter();
       fetchProduct();
     }
   }, [productId]);
+
+  /* =========================================================
+     CHECK IF ALREADY IN WISHLIST
+  ========================================================= */
+
+  useEffect(() => {
+    const check = async () => {
+      if (!userId || !productId) return;
+
+      try {
+        const wishlisted = await checkWishlist(userId, productId);
+        setIsWishlisted(wishlisted);
+      } catch (err) {
+        console.error("WISHLIST CHECK ERROR:", err);
+      }
+    };
+
+    check();
+  }, [userId, productId]);
+
+  /* =========================================================
+     ADD TO WISHLIST
+  ========================================================= */
+
+  const handleAddToWishlist = async () => {
+    if (!userId) {
+      toast.error("Please log in to save items to your wishlist");
+      router.push("/auth/login");
+      return;
+    }
+
+    if (isWishlisted) {
+      toast("This item is already in your wishlist");
+      return;
+    }
+
+    try {
+      setWishlistLoading(true);
+      await addToWishlist(userId, productId);
+      setIsWishlisted(true);
+      toast.success("Added to your wishlist");
+    } catch (err) {
+      console.error("ADD TO WISHLIST ERROR:", err);
+      toast.error(
+        err instanceof Error ? err.message : "Failed to add to wishlist"
+      );
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   /* =========================================================
      LOADING
@@ -419,10 +477,15 @@ const router = useRouter();
 
             <button
               type="button"
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#D9E2E2] bg-white py-3 font-['Poppins'] text-base font-medium text-[#0F766E] transition-all hover:border-[#0F766E]"
+              onClick={handleAddToWishlist}
+              disabled={wishlistLoading}
+              className="mt-3 flex w-full items-center justify-center cursor-pointer gap-2 rounded-lg border border-[#D9E2E2] bg-white py-3 font-['Poppins'] text-base font-medium text-[#0F766E] transition-all hover:border-[#0F766E] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Heart size={18} />
-              Add to Wishlist
+              <Heart
+                size={18}
+                fill={isWishlisted ? "currentColor" : "none"}
+              />
+              {isWishlisted ? "Added to Wishlist" : "Add to Wishlist"}
             </button>
 
           </div>

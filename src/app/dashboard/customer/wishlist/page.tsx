@@ -1,90 +1,77 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Heart, ShoppingCart, Trash2, Search } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import { toast } from "react-toastify";
+import {
+  getWishlist,
+  removeFromWishlist,
+  type WishlistItem,
+} from "@/lib/api/wishlist";
 
 /* =========================================================
-   TYPES
-========================================================= */
-
-interface WishlistItem {
-  id: string;
-  name: string;
-  image: string;
-  category: string;
-  price: number;
-  originalPrice?: number;
-  inStock: boolean;
-}
-
-/* =========================================================
-   STATIC MOCK DATA
-   Replace with a real API call once a Wishlist model/endpoint
-   exists on the server (follow the products.ts pattern).
-========================================================= */
-
-const initialWishlist: WishlistItem[] = [
-  {
-    id: "1",
-    name: "Wireless Headphones",
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80",
-    category: "Electronics",
-    price: 59.99,
-    originalPrice: 79.99,
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Running Shoes",
-    image:
-      "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=300&q=80",
-    category: "Footwear",
-    price: 89.99,
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Ceramic Mug Set",
-    image:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=300&q=80",
-    category: "Home & Kitchen",
-    price: 18.99,
-    originalPrice: 24.99,
-    inStock: true,
-  },
-  {
-    id: "4",
-    name: "Leather Wallet",
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80",
-    category: "Accessories",
-    price: 49.99,
-    inStock: false,
-  },
-  {
-    id: "5",
-    name: "Smart Watch",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80",
-    category: "Electronics",
-    price: 129.99,
-    originalPrice: 159.99,
-    inStock: true,
-  },
-];
-
-/* =========================================================
-   WISHLIST PAGE (STATIC)
+   WISHLIST PAGE
 ========================================================= */
 
 const WishlistPage = () => {
-  const [items, setItems] = useState<WishlistItem[]>(initialWishlist);
-  const [search, setSearch] = useState("");
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
-  const handleRemove = (id: string) => {
+  const [items, setItems] = useState<WishlistItem[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  /* =========================================================
+     FETCH WISHLIST
+  ========================================================= */
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await getWishlist(userId);
+        setItems(data);
+      } catch (err) {
+        console.error("WISHLIST FETCH ERROR:", err);
+        toast.error(
+          err instanceof Error ? err.message : "Failed to load wishlist"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWishlist();
+  }, [userId]);
+
+  /* =========================================================
+     REMOVE ITEM
+  ========================================================= */
+
+  const handleRemove = async (id: string) => {
+    if (!userId) return;
+
+    // optimistic update, then reconcile on failure
+    const previous = items;
     setItems((prev) => prev.filter((item) => item.id !== id));
+
+    try {
+      await removeFromWishlist(userId, id);
+      toast.success("Removed from wishlist");
+    } catch (err) {
+      console.error("WISHLIST REMOVE ERROR:", err);
+      toast.error(
+        err instanceof Error ? err.message : "Failed to remove item"
+      );
+      setItems(previous);
+    }
   };
 
   const filteredItems = items.filter(
@@ -121,8 +108,15 @@ const WishlistPage = () => {
         </div>
       </div>
 
-      {/* Empty State */}
-      {filteredItems.length === 0 ? (
+      {/* Loading / Empty State */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-[#E8EEEE] bg-white py-20">
+          <Heart size={32} className="text-[#94A3B8]" />
+          <p className="font-['Poppins'] text-[14px] text-[#64748B]">
+            Loading your wishlist...
+          </p>
+        </div>
+      ) : filteredItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-[#E8EEEE] bg-white py-20">
           <Heart size={32} className="text-[#94A3B8]" />
           <p className="font-['Poppins'] text-[14px] text-[#64748B]">
@@ -151,7 +145,7 @@ const WishlistPage = () => {
               {/* Image */}
               <div className="flex h-40 items-center justify-center overflow-hidden bg-[#F8FAFC]">
                 <Image
-                  src={item.image}
+                  src={item.image || "/placeholder.png"}
                   alt={item.name}
                   className="h-full w-full object-cover"
                   height={512}
