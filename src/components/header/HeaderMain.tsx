@@ -19,6 +19,10 @@ import {
   Ticket,
   MapPin,
   Settings,
+  Boxes,
+  ShoppingBag,
+  Warehouse,
+  Users,
 } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
@@ -262,41 +266,94 @@ const HeaderMain = ({
                       Dashboard
                     </Link>
 
-                    {/* Orders */}
-                    <Link
-                      href="/orders"
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
-                    >
-                      <Package size={19} strokeWidth={1.7} />
-                      My Orders
-                    </Link>
+                    {user.role === "Seller" ? (
+                      <>
+                        {/* All Products */}
+                        <Link
+                          href="/dashboard/seller/products"
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Boxes size={19} strokeWidth={1.7} />
+                          All Products
+                        </Link>
 
-                    {/* Wishlist */}
-                    <Link
-                      href="/wishlist"
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
-                    >
-                      <Heart size={19} strokeWidth={1.7} />
-                      My Wishlist
-                    </Link>
+                        {/* Orders */}
+                        <Link
+                          href="/dashboard/seller/orders"
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <ShoppingBag size={19} strokeWidth={1.7} />
+                          Orders
+                        </Link>
 
-                    {/* Coupons */}
-                    <Link
-                      href="/coupons"
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
-                    >
-                      <Ticket size={19} strokeWidth={1.7} />
-                      My Coupons
-                    </Link>
+                        {/* Inventory */}
+                        <Link
+                          href="/dashboard/seller/inventory"
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Warehouse size={19} strokeWidth={1.7} />
+                          Inventory
+                        </Link>
 
-                    {/* Addresses */}
-                    <Link
-                      href="/addresses"
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
-                    >
-                      <MapPin size={19} strokeWidth={1.7} />
-                      Addresses
-                    </Link>
+                        {/* Coupons */}
+                        <Link
+                          href="/dashboard/seller/coupons"
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Ticket size={19} strokeWidth={1.7} />
+                          Coupons
+                        </Link>
+                      </>
+                    ) : user.role === "Admin" ? (
+                      <>
+                        {/* Users List */}
+                        <Link
+                          href="/dashboard/admin/customers"
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Users size={19} strokeWidth={1.7} />
+                          Users List
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        {/* Orders */}
+                        <Link
+                          href={`${dashboardPath}/my-order`}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Package size={19} strokeWidth={1.7} />
+                          My Orders
+                        </Link>
+
+                        {/* Wishlist */}
+                        <Link
+                          href={`${dashboardPath}/wishlist`}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Heart size={19} strokeWidth={1.7} />
+                          My Wishlist
+                        </Link>
+
+                        {/* Coupons */}
+                        <Link
+                          href={`${dashboardPath}/coupons`}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <Ticket size={19} strokeWidth={1.7} />
+                          My Coupons
+                        </Link>
+
+                        {/* Addresses */}
+                        <Link
+                          href={`${dashboardPath}/addresses`}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 font-['Poppins'] text-sm text-[#334155] transition-colors hover:bg-[#F6FAF9]"
+                        >
+                          <MapPin size={19} strokeWidth={1.7} />
+                          Addresses
+                        </Link>
+                      </>
+                    )}
 
                     {/* Account Settings */}
                     <Link
