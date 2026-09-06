@@ -1,3 +1,4 @@
+
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const apiPost = async <T>(
@@ -149,3 +150,39 @@ export const apiGet = async <T>( path: string): Promise<T> => {
       : new Error("Something went wrong");
   }
 };
+
+
+
+export const apiPatch = async<T>(endPoint: string, body: unknown):Promise<T> => {
+
+  //  console.log("PATCH 1 - Endpoint:", endPoint);
+  // console.log("PATCH 1 - Request Body:", body);
+
+
+  const response = await fetch(`${baseUrl}${endPoint}` , {
+    method : "PATCH",
+    headers: {
+      "Content-Type" : "application/json",
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  })
+
+//  console.log("PATCH 2 - Response Status:", response.status);
+//   console.log("PATCH 2 - Response OK:", response.ok);
+
+
+  const data = await response.json()
+
+  // console.log("PATCH 3 - Response Data:", data);
+
+  if(!response.ok){
+    //  console.log("PATCH 4 - API Error:", data?.message);
+
+    throw new Error(data?.message || "Something went wrong");
+  }
+
+  // console.log("PATCH 5 - Success Data:", data);
+
+  return data;
+}
