@@ -289,7 +289,7 @@ const handleAddCategory = async (
   // ================= EDIT =================
 
   const handleEdit = (category: Category) => {
-    console.log("Edit category:", category);
+    // console.log("Edit category:", category);
   };
 
   // ================= DELETE =================
@@ -328,7 +328,7 @@ const handleAddCategory = async (
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-350">
+      <div className="">
         {/* ================= HEADER ================= */}
 
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

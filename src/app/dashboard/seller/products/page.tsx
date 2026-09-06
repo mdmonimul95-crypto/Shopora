@@ -162,7 +162,7 @@ const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 
   return (
     <section className="min-h-screen bg-[#FCFDFD] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-      <div className="mx-auto max-w-362.5"> 
+      <div className=""> 
         
 <DeleteConfirmModal
       isOpen={deleteProductId !== null}

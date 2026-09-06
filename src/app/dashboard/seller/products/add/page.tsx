@@ -568,7 +568,7 @@ const AddNewProduct = () => {
 
       <section className="min-h-screen bg-[#F8FAFA] px-4 py-5 font-['Poppins'] sm:px-6 lg:px-8">
 
-        <div className="mx-auto max-w-362.5">
+        <div className="">
 
           {/* =================================================
               PAGE HEADER
