@@ -19,20 +19,20 @@ export type SellerOrder = {
 
   id: string;
   orderNumber: string;
-  status: | "PLACED" | "PAID" | "PROCESSING" | "PACKED" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+  status: OrderStatus;
   paymentStatus: string;
   shippingName : string;
-  paymentMethod: string;
-  shippingPhone: string;
+  paymentMethod: string | null;
+  shippingPhone: string ;
   customerId: string;
   shippingAddress: string;
-  shippingCity: string;
+  shippingCity: string | null;
   shippingPostalCode: string;
-  shippingCountry: string;
-  orderStatus: string;
-  subtotal: string;
-  shippingFee: string;
-  discount: string;
+  shippingCountry: string | null;
+  orderStatus: OrderStatus;
+  subtotal: number;
+  shippingFee: number;
+  discount: number;
   total: number;
   createdAt: string;
   items: SellerOrderItem[];
@@ -63,6 +63,17 @@ export type UpdateSellerOrderStatusResponse = {
   data: SellerOrder;
 };
 
+
+export type OrderStatus =
+  | "PENDING"
+  | "PLACED"
+  | "PAID"
+  | "PROCESSING"
+  | "PACKED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "REFUNDED";
 export const getSellerOrders = async ( sellerId: string): Promise<SellerOrdersResponse> => {
   return await apiGet<SellerOrdersResponse>( `/api/v1/seller/orders/${sellerId}`);
 };

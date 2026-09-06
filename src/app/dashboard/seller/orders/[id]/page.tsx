@@ -662,7 +662,7 @@ const SummaryRow = ({
   valueClass = "text-[#334155]",
 }: {
   label: string;
-  value: string;
+  value: string | number;
   valueClass?: string;
 }) => {
   return (
