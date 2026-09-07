@@ -26,7 +26,6 @@ import {
   Warehouse,
   DollarSign,
   Wallet,
-  BarChart3,
   Bot,
   FileBarChart,
   ChevronRight,
@@ -34,6 +33,8 @@ import {
   Home,
 } from "lucide-react";
 import Image from "next/image";
+
+
 
 /* =========================================================
    TYPES
@@ -137,7 +138,6 @@ const sellerNavItems: NavItem[] = [
     label: "Orders",
     href: "/dashboard/seller/orders",
     icon: ShoppingBag,
-    badge: 18,
   },
   {
     label: "Inventory",
@@ -159,27 +159,12 @@ const sellerNavItems: NavItem[] = [
     href: "/dashboard/seller/payouts",
     icon: Wallet,
   },
-  {
-    label: "Reviews",
-    href: "/dashboard/seller/reviews",
-    icon: Star,
-    badge: 12,
-  },
-  {
-    label: "Analytics",
-    href: "/dashboard/seller/analytics",
-    icon: BarChart3,
-  },
+
   {
     label: "AI Tools",
     href: "/dashboard/seller/ai-tools",
     icon: Sparkles,
     badgeText: "New",
-  },
-  {
-    label: "Store Settings",
-    href: "/dashboard/seller/settings",
-    icon: Settings,
   },
   {
     label: "Support",
