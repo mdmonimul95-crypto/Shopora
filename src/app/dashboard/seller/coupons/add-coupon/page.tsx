@@ -9,10 +9,14 @@ import {
   Percent,
   Tag,
 } from "lucide-react";
+import { createCoupon, type CreateCouponData  } from "@/lib/actions/coupons";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type DiscountType = "fixed-cart" | "percentage" | "fixed-product";
 
 const AddNewCoupon = () => {
+  const router = useRouter();
   const [discountType, setDiscountType] =
     useState<DiscountType>("fixed-cart");
 
@@ -42,18 +46,36 @@ const AddNewCoupon = () => {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const couponData = {
+    const couponData: CreateCouponData = {
       couponCode,
       description,
-      discountType,
-      amount,
+      discountType:
+        discountType === "fixed-cart"
+          ? "FIXED_CART"
+          : discountType === "percentage"
+          ? "PERCENTAGE"
+          : "FIXED_PRODUCT",
+      amount: Number(amount),
       expiryDate,
     };
 
-    console.log("Coupon Data:", couponData);
+    // console.log("Coupon Data:", couponData);
+
+    try {
+      const response = await createCoupon(couponData);
+
+      // console.log("Create Coupon Response:", response);
+      toast.success("Coupon created successfully!");
+
+      router.push("/dashboard/seller/coupons");
+      
+    } catch (error) {
+      console.error("Create Coupon Error:", error);
+       toast.error("Failed to create coupon. Please try again.");
+    }
   };
 
   return (
