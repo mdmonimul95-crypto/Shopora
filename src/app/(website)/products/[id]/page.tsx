@@ -37,6 +37,7 @@ const router = useRouter();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [productPrice, setProductPrice] =useState(0)
   const [activeTab, setActiveTab] = useState("Description");
 
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,10 @@ const router = useRouter();
 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+
+
+
+ 
 
   /* =========================================================
      FETCH PRODUCT BY ID
@@ -72,7 +77,7 @@ const router = useRouter();
           }
         );
 
-        const result = await response.json();
+        const result = await response.json();        
 
         if (!response.ok) {
           throw new Error(
@@ -98,6 +103,7 @@ const router = useRouter();
       fetchProduct();
     }
   }, [productId]);
+
 
   /* =========================================================
      CHECK IF ALREADY IN WISHLIST
@@ -163,6 +169,10 @@ const router = useRouter();
     );
   }
 
+
+
+  
+
   /* =========================================================
      ERROR
   ========================================================= */
@@ -224,6 +234,8 @@ const router = useRouter();
       setQuantity((prev) => prev - 1);
     }
   };
+
+
 
   return (
     <main className="min-h-screen bg-[#FAFCFC] px-4 py-8 sm:px-6 lg:px-8">
@@ -371,6 +383,7 @@ const router = useRouter();
 
               <span className="font-['Poppins'] text-3xl font-bold text-[#1E293B]">
                 ${price.toFixed(2)}
+              
               </span>
 
               {hasDiscount && (
@@ -463,7 +476,7 @@ const router = useRouter();
 
               <button
                 type="button"
-                onClick={() => router.push(`/checkout/${product.id}`)}
+                onClick={() => router.push(`/checkout/${product.id}?quantity=${quantity}`)}
                 disabled={product.stockQuantity <= 0}
                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#0F766E] px-5 py-3 font-['Poppins'] text-base font-semibold text-white transition-all hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:bg-[#CBD5E1]"
               >

@@ -112,6 +112,8 @@ export const apiGet = async <T>( path: string): Promise<T> => {
     }
 
     const url = `${baseUrl}${path}`;
+    // console.log("API POST URL:", url);
+  
 
     const response = await fetch(url, {
       method: "GET",
@@ -122,6 +124,7 @@ export const apiGet = async <T>( path: string): Promise<T> => {
     });
 
     const responseText = await response.text();
+    // console.log("API RESPONSE :", responseText);
 
     let result: T & { message?: string };
 

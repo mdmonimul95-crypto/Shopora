@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -11,9 +11,12 @@ import {
 } from "lucide-react";
 import { createOrder } from "@/lib/api/checkout";
 import { useSession } from "@/lib/auth-client";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { homePageSingleProduct } from "@/type/homePage";
+import { apiGet } from "@/lib/core/server";
+import { string } from "better-auth";
 
 type CustomerInfo = {
   fullName: string;
@@ -31,13 +34,53 @@ export default function CheckoutPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
 
+
    const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
 
   const customerId = session?.user?.id;
   const productId = params?.productId as string;
+
+    const [product, setProduct] = useState<homePageSingleProduct | null>(null);
+const [loading, setLoading] = useState(true);
+
+
+const quantity = Number(searchParams.get("quantity")) || 1;
+
+
+useEffect(() => {
+  const fetchProduct = async () => {
+    try{
+      setLoading(true);
+
+      // console.log("CHECKOUT PRODUCT ID:", productId);
+      // console.log(
+      //   "CHECKOUT API URL:",
+      //   `${process.env.NEXT_PUBLIC_API_URL}/api/v1/products/${productId}`,
+      // );
+
+      const response = await apiGet<{
+        success: boolean;
+        message: string;
+        data: homePageSingleProduct
+      }>(`/api/v1/products/${productId}`)
+
+      setProduct(response.data)
+    }catch(error) {
+      console.error("CHECKOUT PRODUCT ERROR:", error)
+    }finally{
+      setLoading(false)
+    }  
+  }
+
+  if(productId){
+    fetchProduct()
+  }
+}, [productId]); 
+
 
 
 
@@ -53,8 +96,7 @@ export default function CheckoutPage() {
       country: "Bangladesh",
     });
 
-  const [deliveryMethod, setDeliveryMethod] =
-    useState("standard");
+  const [deliveryMethod, setDeliveryMethod] = useState("standard");
 
 const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
@@ -93,6 +135,15 @@ const [orderError, setOrderError] = useState("");
   };
 
 
+const price = product?.salePrice && product.salePrice > 0 ? product.salePrice : product?.regularPrice || 0;
+
+const subtotal = price * quantity;
+
+const shippingFee = deliveryMethod === "express" ? 4.99 : 0;
+
+const total = subtotal + shippingFee;
+
+
   const handlePlaceOrder = async () => {
   try {
     setIsPlacingOrder(true);
@@ -114,7 +165,7 @@ const [orderError, setOrderError] = useState("");
       items: [
         {
           productId: productId,
-          quantity: 1,
+          quantity: quantity,
         },
       ],
 
@@ -638,7 +689,7 @@ const [orderError, setOrderError] = useState("");
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-[16px] font-semibold">Order Summary</h2>
 
-              <span className="text-sm text-[#64748B]">1 Item</span>
+              <span className="text-sm text-[#64748B]">{quantity} Item{quantity > 1 ? "s" : ""}</span>
             </div>
 
             {/* Temporary product */}
@@ -653,23 +704,23 @@ const [orderError, setOrderError] = useState("");
                   Selected Product
                 </p>
 
-                <p className="mt-1 text-xs text-[#64748B]">Quantity: 1</p>
+                <p className="mt-1 text-xs text-[#64748B]">Quantity: {quantity}</p>
               </div>
 
-              <span className="text-sm font-semibold">$80.00</span>
+              <span className="text-sm font-semibold"> ${subtotal.toFixed(2)}</span>
             </div>
 
             <div className="space-y-3 pt-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#64748B]">Subtotal</span>
 
-                <span className="font-medium">$80.00</span>
+                <span className="font-medium">${subtotal.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-[#64748B]">Shipping</span>
 
-                <span className="font-medium text-[#0F766E]">Free</span>
+                <span className="font-medium text-[#0F766E]">${shippingFee.toFixed(2)}</span>
               </div>
 
               <div className="border-t border-[#E5EEEE] pt-3">
@@ -677,7 +728,7 @@ const [orderError, setOrderError] = useState("");
                   <span className="font-semibold">Total</span>
 
                   <span className="text-lg font-semibold text-[#0F766E]">
-                    $80.00
+                     ${total.toFixed(2)}
                   </span>
                 </div>
               </div>
