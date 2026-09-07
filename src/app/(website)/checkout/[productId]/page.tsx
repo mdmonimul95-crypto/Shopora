@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { homePageSingleProduct } from "@/type/homePage";
 import { apiGet } from "@/lib/core/server";
-import { string } from "better-auth";
+import { getCoupons, type Coupon} from "@/lib/api/coupons";
 
 type CustomerInfo = {
   fullName: string;
@@ -33,6 +33,10 @@ type CustomerInfo = {
 export default function CheckoutPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [discount, setDiscount] = useState(0);
+
+  const [couponCode, setCouponCode] = useState("");
+const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
 
    const { data: session } = useSession();
@@ -141,7 +145,68 @@ const subtotal = price * quantity;
 
 const shippingFee = deliveryMethod === "express" ? 4.99 : 0;
 
-const total = subtotal + shippingFee;
+const total = Math.max(subtotal + shippingFee - discount, 0);
+
+
+const calculateDiscount = (coupon: Coupon) => {
+  if (coupon.discountType === "FIXED_CART") {
+    return Math.min(coupon.amount, subtotal);
+  }
+
+  if (coupon.discountType === "PERCENTAGE") {
+    return Math.min(
+      (subtotal * coupon.amount) / 100,
+      subtotal
+    );
+  }
+
+  if (coupon.discountType === "FIXED_PRODUCT") {
+    return Math.min(coupon.amount * quantity, subtotal);
+  }
+
+  return 0;
+};
+
+
+const handleApplyCoupon = async () => {
+  if (!couponCode.trim()) {
+    toast.error("Please enter a coupon code.");
+    return;
+  }
+
+  try {
+    const response = await getCoupons();
+
+    const coupon = response.data.find(
+      (item) =>
+        item.couponCode.toUpperCase() ===
+        couponCode.trim().toUpperCase()
+    );
+
+    if (!coupon) {
+      toast.error("Invalid coupon code.");
+      return;
+    }
+
+    const expiryDate = new Date(coupon.expiryDate);
+
+    if (expiryDate < new Date()) {
+      toast.error("This coupon has expired.");
+      return;
+    }
+
+    const calculatedDiscount = calculateDiscount(coupon);
+
+    setAppliedCoupon(coupon);
+    setDiscount(calculatedDiscount);
+
+    toast.success("Coupon applied successfully!");
+  } catch (error) {
+    console.error("APPLY COUPON ERROR:", error);
+
+    toast.error("Failed to apply coupon.");
+  }
+};
 
 
   const handlePlaceOrder = async () => {
@@ -181,7 +246,8 @@ const total = subtotal + shippingFee;
       shippingFee:
         deliveryMethod === "express" ? 4.99 : 0,
 
-      discount: 0,
+      discount: discount,
+      couponCode: appliedCoupon?.couponCode,
 
       notes: undefined,
     });
@@ -689,7 +755,42 @@ const total = subtotal + shippingFee;
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-[16px] font-semibold">Order Summary</h2>
 
-              <span className="text-sm text-[#64748B]">{quantity} Item{quantity > 1 ? "s" : ""}</span>
+              <span className="text-sm text-[#64748B]">
+                {quantity} Item{quantity > 1 ? "s" : ""}
+              </span>
+            </div>
+
+            {/* Coupon Code */}
+            <div className="mb-5 border-b border-[#E5EEEE] pb-4">
+              <label className="mb-2 block text-sm font-medium text-[#172033]">
+                Coupon Code
+              </label>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Enter coupon code"
+                  disabled={!!appliedCoupon}
+                  className="h-10 min-w-0 flex-1 rounded-md border border-[#DDE5E5] px-3 text-sm outline-none focus:border-[#0F766E]"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={!!appliedCoupon}
+                  className="rounded-md bg-[#0F766E] px-4 text-sm font-semibold text-white hover:bg-[#0B625B] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {appliedCoupon ? "Applied" : "Apply"}
+                </button>
+              </div>
+
+              {appliedCoupon && (
+                <p className="mt-2 text-sm text-[#0F766E]">
+                  {appliedCoupon.couponCode} applied successfully
+                </p>
+              )}
             </div>
 
             {/* Temporary product */}
@@ -704,31 +805,50 @@ const total = subtotal + shippingFee;
                   Selected Product
                 </p>
 
-                <p className="mt-1 text-xs text-[#64748B]">Quantity: {quantity}</p>
+                <p className="mt-1 text-xs text-[#64748B]">
+                  Quantity: {quantity}
+                </p>
               </div>
 
-              <span className="text-sm font-semibold"> ${subtotal.toFixed(2)}</span>
+              <span className="text-sm font-semibold">
+                {" "}
+                ${subtotal.toFixed(2)}
+              </span>
             </div>
 
             <div className="space-y-3 pt-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#64748B]">Subtotal</span>
+                
 
                 <span className="font-medium">${subtotal.toFixed(2)}</span>
               </div>
+              
 
               <div className="flex justify-between">
                 <span className="text-[#64748B]">Shipping</span>
 
-                <span className="font-medium text-[#0F766E]">${shippingFee.toFixed(2)}</span>
+                <span className="font-medium text-[#0F766E]">
+                  ${shippingFee.toFixed(2)}
+                </span>
               </div>
+
+              {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-[#64748B]">Discount</span>
+
+                    <span className="font-medium text-[#FF6B6B]">
+                      -${discount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
 
               <div className="border-t border-[#E5EEEE] pt-3">
                 <div className="flex justify-between">
                   <span className="font-semibold">Total</span>
 
                   <span className="text-lg font-semibold text-[#0F766E]">
-                     ${total.toFixed(2)}
+                    ${total.toFixed(2)}
                   </span>
                 </div>
               </div>
