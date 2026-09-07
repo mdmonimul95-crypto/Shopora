@@ -4,12 +4,13 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Heart, ShoppingCart, Trash2, Search } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { toast } from "react-toastify";
+
 import {
   getWishlist,
   removeFromWishlist,
   type WishlistItem,
 } from "@/lib/api/wishlist";
+import toast from "react-hot-toast";
 
 /* =========================================================
    WISHLIST PAGE
