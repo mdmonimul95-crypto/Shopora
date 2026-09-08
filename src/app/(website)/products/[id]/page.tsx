@@ -37,7 +37,6 @@ const router = useRouter();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [productPrice, setProductPrice] =useState(0)
   const [activeTab, setActiveTab] = useState("Description");
 
   const [loading, setLoading] = useState(true);
