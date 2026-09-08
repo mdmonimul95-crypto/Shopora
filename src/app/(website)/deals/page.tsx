@@ -134,68 +134,7 @@ const DealsPage = () => {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
-      {/* =====================================================
-          DEALS HERO
-      ====================================================== */}
-      <section className="relative overflow-hidden bg-[#0F766E]">
-        {/* Decorative circles */}
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5" />
-
-        <div className="absolute -bottom-32 right-24 h-80 w-80 rounded-full bg-white/5" />
-
-        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-          <div className="max-w-3xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2">
-              <Zap
-                size={16}
-                fill="currentColor"
-                className="text-[#FF6B6B]"
-              />
-
-              <span className="font-['Poppins'] text-xs font-semibold uppercase tracking-wider text-white">
-                Limited Time Offers
-              </span>
-            </div>
-
-            {/* Heading */}
-            <h1 className="mt-5 font-['Poppins'] text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-              Deals You
-              <span className="text-[#FF8B8B]">
-                {" "}Dont Want{" "}
-              </span>
-              to Miss
-            </h1>
-
-            <p className="mt-5 max-w-2xl font-['Poppins'] text-sm leading-7 text-white/75 sm:text-base">
-              Grab amazing products at incredible prices.
-              Shop todays best deals before theyre gone.
-            </p>
-
-            {/* Countdown style */}
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 rounded-lg bg-white px-4 py-3">
-                <Clock3
-                  size={18}
-                  className="text-[#0F766E]"
-                />
-
-                <span className="font-['Poppins'] text-sm font-semibold text-[#1E293B]">
-                  Deals are live now
-                </span>
-              </div>
-
-              <Link
-                href="/shop"
-                className="flex items-center gap-2 rounded-lg border border-white/30 px-5 py-3 font-['Poppins'] text-sm font-medium text-white transition hover:bg-white/10"
-              >
-                Shop All Products
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+  
 
       {/* =====================================================
           DEALS CONTENT
