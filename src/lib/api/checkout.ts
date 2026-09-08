@@ -1,5 +1,37 @@
 import { apiPost } from "@/lib/core/server";
 
+import { apiGet } from "@/lib/core/server";
+
+export type MyOrderItem = {
+  productName: string;
+  productImage: string | null;
+  quantity: number;
+  price: number;
+};
+
+export type MyOrder = {
+  id: string;
+  orderNumber: string;
+  status: string; // matches backend OrderStatus enum
+  total: number;
+  createdAt: string;
+  items: MyOrderItem[];
+};
+
+export const getMyOrders = async (customerId: string) => {
+  const response = await apiGet<{
+    success: boolean;
+    message: string;
+    data: MyOrder[];
+  }>(`/api/v1/orders?customerId=${customerId}`);
+
+  return response.data;
+};
+
+
+
+
+
 export type CreateOrderItem = {
   productId: string;
   quantity: number;
