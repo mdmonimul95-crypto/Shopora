@@ -1,14 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronRight, Package, Search } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import { getMyOrders, type MyOrder } from "@/lib/api/checkout";
 
 /* =========================================================
    TYPES
 ========================================================= */
 
-type OrderStatus = "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+type OrderStatus =
+  | "PENDING"
+  | "PLACED"
+  | "PAID"
+  | "PROCESSING"
+  | "PACKED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "REFUNDED";
 
 interface OrderItem {
   productName: string;
@@ -27,116 +38,32 @@ interface Order {
 }
 
 /* =========================================================
-   STATIC MOCK DATA
-   Replace with a real API call (see getOrders.ts) once ready.
-========================================================= */
-
-const orders: Order[] = [
-  {
-    id: "1",
-    orderNumber: "ORD-8321",
-    status: "DELIVERED",
-    total: 59.99,
-    createdAt: "2024-05-26",
-    items: [
-      {
-        productName: "Wireless Headphones",
-        productImage:
-          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80",
-        quantity: 1,
-        price: 59.99,
-      },
-    ],
-  },
-  {
-    id: "2",
-    orderNumber: "ORD-8320",
-    status: "PROCESSING",
-    total: 89.99,
-    createdAt: "2024-05-24",
-    items: [
-      {
-        productName: "Running Shoes",
-        productImage:
-          "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=200&q=80",
-        quantity: 1,
-        price: 69.99,
-      },
-      {
-        productName: "Ankle Socks",
-        productImage: null,
-        quantity: 2,
-        price: 10.0,
-      },
-    ],
-  },
-  {
-    id: "3",
-    orderNumber: "ORD-8317",
-    status: "DELIVERED",
-    total: 18.99,
-    createdAt: "2024-05-20",
-    items: [
-      {
-        productName: "Ceramic Mug Set",
-        productImage:
-          "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=200&q=80",
-        quantity: 1,
-        price: 18.99,
-      },
-    ],
-  },
-  {
-    id: "4",
-    orderNumber: "ORD-8315",
-    status: "CANCELLED",
-    total: 49.99,
-    createdAt: "2024-05-18",
-    items: [
-      {
-        productName: "Leather Wallet",
-        productImage:
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=200&q=80",
-        quantity: 1,
-        price: 49.99,
-      },
-    ],
-  },
-  {
-    id: "5",
-    orderNumber: "ORD-8310",
-    status: "SHIPPED",
-    total: 129.99,
-    createdAt: "2024-05-10",
-    items: [
-      {
-        productName: "Smart Watch",
-        productImage:
-          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80",
-        quantity: 1,
-        price: 129.99,
-      },
-    ],
-  },
-];
-
-/* =========================================================
    STATUS LABELS / STYLES
 ========================================================= */
 
 const statusOptions: Array<OrderStatus | "All"> = [
   "All",
+  "PENDING",
+  "PLACED",
+  "PAID",
   "PROCESSING",
+  "PACKED",
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
+  "REFUNDED",
 ];
 
 const statusLabel: Record<OrderStatus, string> = {
+  PENDING: "Pending",
+  PLACED: "Placed",
+  PAID: "Paid",
   PROCESSING: "Processing",
+  PACKED: "Packed",
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
   CANCELLED: "Cancelled",
+  REFUNDED: "Refunded",
 };
 
 const getStatusClass = (status: OrderStatus) => {
@@ -144,26 +71,57 @@ const getStatusClass = (status: OrderStatus) => {
     return "bg-[#EAF7E7] text-[#4D9A38]";
   }
 
-  if (status === "PROCESSING") {
+  if (status === "PROCESSING" || status === "PAID") {
     return "bg-[#EAF3FF] text-[#2563EB]";
   }
 
-  if (status === "CANCELLED") {
+  if (status === "CANCELLED" || status === "REFUNDED") {
     return "bg-[#F1F2F4] text-[#64748B]";
   }
 
+  // PENDING, PLACED, PACKED, SHIPPED
   return "bg-[#FFF3E8] text-[#F97316]";
 };
 
 /* =========================================================
-   MY ORDERS PAGE (STATIC)
+   MY ORDERS PAGE (DYNAMIC)
 ========================================================= */
 
 const MyOrdersPage = () => {
+  const { data: session } = useSession();
+  const customerId = session?.user?.id;
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
+
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">(
     "All"
   );
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!customerId) return;
+
+      try {
+        setLoading(true);
+        setFetchError("");
+
+        const data = await getMyOrders(customerId);
+        setOrders(data as unknown as Order[]);
+      } catch (err) {
+        console.error("MY ORDERS FETCH ERROR:", err);
+        setFetchError(
+          err instanceof Error ? err.message : "Failed to load orders"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [customerId]);
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
@@ -225,7 +183,19 @@ const MyOrdersPage = () => {
 
       {/* Orders List */}
       <div className="overflow-hidden rounded-xl border border-[#E8EEEE] bg-white">
-        {filteredOrders.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16">
+            <p className="font-['Poppins'] text-[14px] text-[#64748B]">
+              Loading your orders...
+            </p>
+          </div>
+        ) : fetchError ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16">
+            <p className="font-['Poppins'] text-[14px] text-red-500">
+              {fetchError}
+            </p>
+          </div>
+        ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">
             <Package size={32} className="text-[#94A3B8]" />
             <p className="font-['Poppins'] text-[14px] text-[#64748B]">
