@@ -135,22 +135,6 @@ const WishlistPage = () => {
   }
 };
 
-  /* =========================================================
-     ADD ALL TO CART
-  ========================================================= */
-
-  const handleAddAllToCart = () => {
-    const availableProducts = wishlistItems.filter(
-      (item) => item.inStock
-    );
-
-    availableProducts.forEach((product) => {
-      console.log("ADD TO CART:", product);
-    });
-
-    // TODO:
-    // Connect your existing cart function here.
-  };
 
   /* =========================================================
      CALCULATIONS
