@@ -107,6 +107,8 @@ const AddNewProduct = () => {
   const [generatingType, setGeneratingType] =
     useState<GenerateType>(null);
 
+    const [selectedBrandId, setSelectedBrandId] = useState("");
+
   const [saving, setSaving] =
     useState(false);
 
@@ -514,6 +516,7 @@ const AddNewProduct = () => {
             (image) => image.url
           ),
           sellerId: sellerId,
+          brandId: selectedBrandId || undefined,
       };
 
       await createProduct(
@@ -828,14 +831,24 @@ const AddNewProduct = () => {
 
                       <div className="relative">
 
-                        <select
+                                                <select
                           name="brand"
                           value={
                             formData.brand
                           }
-                          onChange={
-                            handleChange
-                          }
+                          onChange={(e) => {
+                            const selectedName = e.target.value;
+                            const matchedBrand = brands.find(
+                              (b) => b.name === selectedName
+                            );
+
+                            setFormData((prev) => ({
+                              ...prev,
+                              brand: selectedName,
+                            }));
+
+                            setSelectedBrandId(matchedBrand?.id || "");
+                          }}
                           disabled={
                             brandLoading
                           }
