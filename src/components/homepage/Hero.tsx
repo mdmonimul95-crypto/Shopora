@@ -5,7 +5,6 @@ import {
   Box,
   BrainCircuit,
   Truck,
-  Headphones,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -39,13 +38,7 @@ const Hero = () => {
       color: "text-[#FF6B6B]",
       bg: "bg-[#FFF0F0]",
     },
-    {
-      icon: Headphones,
-      title: "24/7 Support",
-      description: "We're here to help anytime",
-      color: "text-[#0F766E]",
-      bg: "bg-[#E8F5F3]",
-    },
+
   ];
 
   return (
@@ -228,7 +221,7 @@ const Hero = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="relative mx-2 z-30 -mb-10 grid grid-cols-2 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-lg sm:grid-cols-3 lg:grid-cols-5">
+        <div className="relative mx-2 z-30 -mb-10 grid grid-cols-2 overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-lg sm:grid-cols-3 lg:grid-cols-4">
           {features.map((feature, index) => {
             const Icon = feature.icon;
 
@@ -251,7 +244,7 @@ const Hero = () => {
                   {feature.title}
                 </h3>
 
-                <p className="mt-1 max-w-37.5 font-['Poppins'] text-[10px] leading-4 text-[#94A3B8] sm:text-[11px]">
+                <p className="mt-1 max-w-37.5 font-['Poppins'] text-[12px] leading-4 text-[#94A3B8] md:text-[13px]">
                   {feature.description}
                 </p>
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,24 @@ import {
 } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
+import { apiGet } from "@/lib/core/server";
+
+
+
+interface SearchProduct {
+  id: string;
+  name: string;
+  sku: string;
+  regularPrice: number;
+  salePrice: number | null;
+  images: string[];
+}
+
+interface SearchProductsResponse {
+  success: boolean;
+  message: string;
+  data: SearchProduct[];
+}
 
 interface HeaderMainProps {
   onMenuOpen: () => void;
@@ -33,15 +51,47 @@ interface HeaderMainProps {
   onCategoryToggle: () => void;
 }
 
-const HeaderMain = ({
-  onMenuOpen,
-  categoryOpen,
-  onCategoryToggle,
-}: HeaderMainProps) => {
+const HeaderMain = ({ onMenuOpen,}: HeaderMainProps) => {
+
   const [accountOpen, setAccountOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const router = useRouter();
+
+useEffect(() => {
+  const query = search.trim();
+
+  const timer = setTimeout(async () => {
+    if (!query) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+
+    try {
+      setSearchLoading(true);
+
+      const response = await apiGet<SearchProductsResponse>(
+        `/api/v1/products/search?q=${encodeURIComponent(query)}`,
+      );
+
+      // console.log("LIVE SEARCH RESULT:", response.data);
+
+      setSearchResults(response.data || []);
+    } catch (error) {
+      console.error("LIVE SEARCH ERROR:", error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [search]);
+
+
 
   // Better Auth Session
   const { data: session } = authClient.useSession();
@@ -59,6 +109,7 @@ const HeaderMain = ({
     e.preventDefault();
 
     const query = search.trim();
+   
 
     if (!query) return;
 
@@ -77,10 +128,7 @@ const HeaderMain = ({
           {/* =================================================
               LOGO
           ================================================== */}
-          <Link
-            href="/"
-            className="flex w-43.75 shrink-0 items-center gap-2.5"
-          >
+          <Link href="/" className="flex w-43.75 shrink-0 items-center gap-2.5">
             <div className="relative flex h-12 w-10 items-end justify-center rounded-lg bg-[#0F766E] shadow-sm">
               {/* Bag Handle */}
               <div className="absolute -top-2 left-1/2 h-5 w-5 -translate-x-1/2 rounded-t-full border-[3px] border-b-0 border-[#0F766E]" />
@@ -106,7 +154,7 @@ const HeaderMain = ({
           ================================================== */}
           <form
             onSubmit={handleSearch}
-            className="flex h-11 flex-1 overflow-hidden rounded-lg border border-[#E2E8F0] bg-white"
+            className="relative flex h-11 flex-1 rounded-lg border border-[#E2E8F0] bg-white"
           >
             <input
               type="text"
@@ -115,6 +163,72 @@ const HeaderMain = ({
               placeholder="Search for products, brands and more..."
               className="min-w-0 flex-1 bg-transparent px-4 font-['Poppins'] text-[14px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
             />
+
+            {search.trim() && (searchResults.length > 0 || searchLoading) && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-lg border border-[#E5EEEE] bg-white shadow-lg">
+                {searchLoading ? (
+                  <div className="px-4 py-4 text-sm text-[#64748B]">
+                    Searching...
+                  </div>
+                ) : (
+                  <div className="max-h-90 overflow-y-auto">
+                    {searchResults.slice(0, 5).map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        onClick={() => {
+                          setSearch("");
+                          setSearchResults([]);
+                          router.push(`/products/${product.id}`);
+                        }}
+                        className="flex w-full items-center gap-3 border-b border-[#F0F4F4] px-4 py-3 text-left transition hover:bg-[#F8FAFA]"
+                      >
+                        {/* Product Image */}
+                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-[#F8FAFA]">
+                          {product.images?.[0] ? (
+                            <Image
+                              src={product.images[0]}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-xs text-[#94A3B8]">
+                              No Image
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-[#1E293B]">
+                            {product.name}
+                          </p>
+
+                          <div className="mt-1 flex items-center gap-2">
+                            {product.salePrice !== null ? (
+                              <>
+                                <span className="text-sm font-semibold text-[#0F766E]">
+                                  ${product.salePrice}
+                                </span>
+
+                                <span className="text-xs text-[#94A3B8] line-through">
+                                  ${product.regularPrice}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-sm font-semibold text-[#0F766E]">
+                                ${product.regularPrice}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Search Button */}
             <button
@@ -548,10 +662,7 @@ const HeaderMain = ({
                       onClick={() => setAccountOpen(false)}
                       className="mt-2 flex items-center gap-3 rounded-lg bg-[#E8F5F3] px-3 py-3 font-['Poppins'] text-sm font-medium text-[#1E293B]"
                     >
-                      <LayoutDashboard
-                        size={18}
-                        className="text-[#0F766E]"
-                      />
+                      <LayoutDashboard size={18} className="text-[#0F766E]" />
                       Dashboard
                     </Link>
 
@@ -638,30 +749,100 @@ const HeaderMain = ({
         </div>
 
         {/* =================================================
-            MOBILE SEARCH
-        ================================================== */}
+             MOBILE SEARCH
+          ================================================== */}
         <div className="border-b border-[#E8EEEE] px-4 py-3">
           <form
             onSubmit={handleSearch}
-            className="flex h-10 overflow-hidden rounded-lg border border-[#E2E8F0]"
+            className="relative flex h-10 overflow-visible rounded-lg border border-[#E2E8F0]"
           >
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products, brands and more..."
-              className="min-w-0 flex-1 bg-transparent px-3 font-['Poppins'] text-[10px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
+              className="min-w-0 flex-1 bg-transparent px-3 font-['Poppins'] text-[14px] text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
             />
 
+            {/* Mobile Search Suggestions */}
+            {search.trim() && (searchResults.length > 0 || searchLoading) && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-lg border border-[#E5EEEE] bg-white shadow-lg">
+                {searchLoading ? (
+                  <div className="px-4 py-4 font-['Poppins'] text-[14px] text-[#64748B]">
+                    Searching...
+                  </div>
+                ) : (
+                  <div className="max-h-80 overflow-y-auto">
+                    {searchResults.slice(0, 5).map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        onClick={() => {
+                          setSearch("");
+                          setSearchResults([]);
+                          router.push(`/products/${product.id}`);
+                        }}
+                        className="flex w-full items-center gap-3 border-b border-[#F0F4F4] px-3 py-3 text-left transition hover:bg-[#F8FAFA]"
+                      >
+                        {/* Product Image */}
+                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-[#F8FAFA]">
+                          {product.images?.[0] ? (
+                            <Image
+                              src={product.images[0]}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center font-['Poppins'] text-[14px] text-[#94A3B8]">
+                              No Image
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-['Poppins'] text-[14px] font-medium text-[#1E293B]">
+                            {product.name}
+                          </p>
+
+                          <div className="mt-1 flex items-center gap-2">
+                            {product.salePrice !== null ? (
+                              <>
+                                <span className="font-['Poppins'] text-[14px] font-semibold text-[#0F766E]">
+                                  ${product.salePrice}
+                                </span>
+
+                                <span className="font-['Poppins'] text-[14px] text-[#94A3B8] line-through">
+                                  ${product.regularPrice}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="font-['Poppins'] text-[14px] font-semibold text-[#0F766E]">
+                                ${product.regularPrice}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Search Button */}
             <button
               type="submit"
               aria-label="Search"
-              className="flex w-10 items-center justify-center bg-[#0F766E] text-white"
+              className="flex w-10 shrink-0 items-center justify-center bg-[#0F766E] text-white"
             >
-              <Search size={17} />
+              <Search size={17} strokeWidth={1.8} />
             </button>
           </form>
         </div>
+
+
       </div>
     </>
   );
