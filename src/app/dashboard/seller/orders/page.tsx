@@ -4,41 +4,15 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronRight, Package, Search } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { getSellerOrders } from "@/lib/api/sellerOrders";
+import {
+  getSellerOrders,
+  type SellerOrder,
+  type OrderStatus,
+} from "@/lib/api/sellerOrders";
 import Link from "next/link";
 
-/* =========================================================
-   TYPES
-========================================================= */
 
-type OrderStatus =
-  | "PLACED"
-  | "PAID"
-  | "PROCESSING"
-  | "PACKED"
-  | "SHIPPED"
-  | "DELIVERED"
-  | "CANCELLED"
-  | "REFUNDED";
 
-interface OrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage: string | null;
-  quantity: number;
-  price: number;
-  total: number;
-}
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  status: OrderStatus;
-  total: number;
-  createdAt: string;
-  items: OrderItem[];
-}
 
 /* =========================================================
    STATUS LABELS / STYLES
@@ -46,6 +20,7 @@ interface Order {
 
 const statusOptions: Array<OrderStatus | "All"> = [
   "All",
+  "PENDING",
   "PLACED",
   "PAID",
   "PROCESSING",
@@ -57,6 +32,7 @@ const statusOptions: Array<OrderStatus | "All"> = [
 ];
 
 const statusLabel: Record<OrderStatus, string> = {
+  PENDING: "Pending",
   PLACED: "Placed",
   PAID: "Paid",
   PROCESSING: "Processing",
@@ -73,12 +49,13 @@ const getStatusClass = (status: OrderStatus) => {
   }
 
   if (
-    status === "PLACED" ||
-    status === "PAID" ||
-    status === "PROCESSING"
-  ) {
-    return "bg-[#EAF3FF] text-[#2563EB]";
-  }
+  status === "PENDING" ||
+  status === "PLACED" ||
+  status === "PAID" ||
+  status === "PROCESSING"
+) {
+  return "bg-[#EAF3FF] text-[#2563EB]";
+}
 
   if (status === "CANCELLED" || status === "REFUNDED") {
     return "bg-[#F1F2F4] text-[#64748B]";
@@ -104,7 +81,7 @@ const OrdersPage = () => {
      STATES
   ========================================================= */
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<SellerOrder[]>([]);
 
   const [statusFilter, setStatusFilter] =
     useState<OrderStatus | "All">("All");
@@ -122,7 +99,7 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchSellerOrders = async () => {
       if (!sellerId) {
-        console.log("Seller ID not available");
+        // console.log("Seller ID not available");
         return;
       }
 

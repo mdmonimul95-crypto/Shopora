@@ -213,57 +213,7 @@ export default function ShopPage() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
-      {/* =====================================================
-          SHOP HERO
-      ====================================================== */}
-      <section className="border-b border-[#E8EEEE] bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <div className="max-w-2xl">
-            <p className="font-['Poppins'] text-sm font-semibold uppercase tracking-wider text-[#0F766E]">
-              Shopora Store
-            </p>
-
-            <h1 className="mt-2 font-['Poppins'] text-3xl font-bold tracking-tight text-[#1E293B] sm:text-4xl lg:text-5xl">
-              Find Something
-              <span className="text-[#0F766E]">
-                {" "}You’ll Love
-              </span>
-            </h1>
-
-            <p className="mt-4 max-w-xl font-['Poppins'] text-sm leading-6 text-[#64748B] sm:text-base">
-              Discover quality products, trusted brands and
-              great deals — all in one place.
-            </p>
-          </div>
-
-          {/* Search */}
-          <div className="mt-8 max-w-2xl">
-            <div className="flex h-12 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm focus-within:border-[#0F766E]">
-              <div className="flex w-12 items-center justify-center text-[#94A3B8]">
-                <Search size={19} />
-              </div>
-
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search products, brands, SKU..."
-                className="min-w-0 flex-1 bg-transparent pr-4 font-['Poppins'] text-sm text-[#1E293B] outline-none placeholder:text-[#94A3B8]"
-              />
-
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch("")}
-                  className="mr-3 text-[#94A3B8] hover:text-[#0F766E]"
-                >
-                  <X size={18} />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+ 
 
       {/* =====================================================
           MAIN SHOP AREA
