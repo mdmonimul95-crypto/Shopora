@@ -123,7 +123,7 @@ export default function ShoporaAssistant() {
       ====================================================== */}
 
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex h-[600px] w-[380px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-2xl border border-[#E5EEEE] bg-white shadow-2xl">
+        <div className="fixed bottom-6 right-6 z-50 flex h-150 w-95 max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-2xl border border-[#E5EEEE] bg-white shadow-2xl">
 
           {/* =================================================
               HEADER
