@@ -1,4 +1,4 @@
-import { apiPost } from "@/lib/core/server";
+import { apiGet, apiPost } from "@/lib/core/server";
 
 export type StripeCheckoutItem = {
     productId: string;
@@ -40,5 +40,27 @@ export const createStripeCheckoutSession = async (
   return await apiPost<CreateStripeCheckoutResponse>(
     "/api/v1/stripe/create-checkout-session",
     data
+  );
+};
+
+
+export type VerifyStripePaymentResponse = {
+  success: boolean;
+  message: string;
+  data?: {
+    sessionId: string;
+    paymentStatus: string;
+    paymentIntentId?: string | null;
+    order?: unknown;
+  };
+};
+
+export const verifyStripePayment = async (
+  sessionId: string
+): Promise<VerifyStripePaymentResponse> => {
+  return await apiGet<VerifyStripePaymentResponse>(
+    `/api/v1/stripe/verify-payment?session_id=${encodeURIComponent(
+      sessionId
+    )}`
   );
 };
