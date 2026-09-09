@@ -19,6 +19,7 @@ interface Brand {
   image?: string | null;
   description?: string | null;
   productCount?: number;
+  products?: number;
   _count?: {
     products?: number;
   };
@@ -240,19 +241,15 @@ const Brand = () => {
                   brand.logo || brand.image || null;
 
                 const productCount =
+                  brand.products ??
                   brand.productCount ??
                   brand._count?.products ??
                   0;
 
-                const brandSlug =
-                  brand.slug || brand.name;
-
                 return (
                   <Link
                     key={brand.id}
-                    href={`/shop?brand=${encodeURIComponent(
-                      brandSlug
-                    )}`}
+                    href={`/brands/${brand.id}`}
                     className="group overflow-hidden rounded-xl border border-[#E8EEEE] bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#D3E7E4] hover:shadow-[0_14px_35px_rgba(15,118,110,0.10)]"
                   >
                     {/* Brand Logo Area */}
