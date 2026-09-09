@@ -17,6 +17,7 @@ import Link from "next/link";
 import { homePageSingleProduct } from "@/type/homePage";
 import { apiGet } from "@/lib/core/server";
 import { getCoupons, type Coupon} from "@/lib/api/coupons";
+import { createStripeCheckoutSession } from "@/lib/stripe";
 
 type CustomerInfo = {
   fullName: string;
@@ -265,6 +266,82 @@ const handleApplyCoupon = async () => {
       error instanceof Error
         ? error.message
         : "Failed to place order"
+    );
+  } finally {
+    setIsPlacingOrder(false);
+  }
+};
+
+
+const handleStripePayment = async () => {
+  try {
+    setIsPlacingOrder(true);
+
+    if (!customerId) {
+      toast.error("Please login to continue.");
+      return;
+    }
+
+    if (!product) {
+      toast.error("Product information is missing.");
+      return;
+    }
+
+    if (!customerInfo.fullName || !customerInfo.phone) {
+      toast.error("Please complete your shipping information.");
+      return;
+    }
+
+    const price =
+      product.salePrice && product.salePrice > 0
+        ? product.salePrice
+        : product.regularPrice;
+
+    const shippingFee =
+      deliveryMethod === "express" ? 4.99 : 0;
+
+    const response =
+  await createStripeCheckoutSession({
+    customerId,
+
+    items: [
+      {
+        productId: product.id,
+        name: product.name,
+        price,
+        quantity,
+        image: product.images?.[0] || null,
+      },
+    ],
+
+    shippingName: customerInfo.fullName,
+    shippingPhone: customerInfo.phone,
+    shippingAddress: customerInfo.address,
+    shippingCity: customerInfo.city,
+    shippingPostalCode: customerInfo.postalCode,
+    shippingCountry: customerInfo.country,
+
+    shippingFee,
+    discount,
+  });
+
+
+
+
+
+    if (!response.success || !response.data?.url) {
+      toast.error("Failed to create Stripe checkout.");
+      return;
+    }
+
+    window.location.href = response.data.url;
+  } catch (error) {
+    console.error("STRIPE PAYMENT ERROR:", error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Unable to start Stripe payment."
     );
   } finally {
     setIsPlacingOrder(false);
@@ -724,7 +801,7 @@ const handleApplyCoupon = async () => {
 
                     <button
                       type="button"
-                      onClick={handlePlaceOrder}
+                      onClick={handleStripePayment}
                       disabled={isPlacingOrder}
                       className="rounded-md bg-[#FF6B6B] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#F45B5B] disabled:cursor-not-allowed disabled:opacity-60"
                     >
