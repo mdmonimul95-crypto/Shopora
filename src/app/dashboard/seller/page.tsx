@@ -36,8 +36,6 @@ const SellerDashboard = () => {
         <SellerHeader></SellerHeader>
         <SellerStatCard></SellerStatCard>
         <MainAnalytics></MainAnalytics>
-        <SecondContentRow></SecondContentRow>
-        <GrowBusinessTools></GrowBusinessTools>
       </div>
 
     </section>
