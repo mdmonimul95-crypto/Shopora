@@ -27,14 +27,8 @@ const shopLinks = [
 ];
 
 const customerLinks = [
-  {
-    label: "Track Order",
-    href: "/track-order",
-  },
-  {
-    label: "Shipping & Delivery",
-    href: "/shipping",
-  },
+
+
   {
     label: "Returns & Refunds",
     href: "/returns",
@@ -53,10 +47,6 @@ const companyLinks = [
   {
     label: "About Us",
     href: "/about",
-  },
-  {
-    label: "Careers",
-    href: "/careers",
   },
   {
     label: "Privacy Policy",
@@ -253,7 +243,7 @@ const Footer = () => {
 
         <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
 
-          <p className="font-['Poppins'] text-[9px] text-[#94A3B8] sm:text-[10px]">
+          <p className="font-['Poppins'] text-[10px] text-[#94A3B8] md:text-[12px]">
             © 2026 Shopora. All rights reserved.
           </p>
 
