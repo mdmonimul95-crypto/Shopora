@@ -59,7 +59,7 @@ export const verifyStripePayment = async (
   sessionId: string
 ): Promise<VerifyStripePaymentResponse> => {
   return await apiGet<VerifyStripePaymentResponse>(
-    `/api/v1/stripe/verify-payment?session_id=${encodeURIComponent(
+    `/api/v1/stripe/verify-session?session_id=${encodeURIComponent(
       sessionId
     )}`
   );
