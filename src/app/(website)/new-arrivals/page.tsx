@@ -39,54 +39,53 @@ const NewArrivalsPage = () => {
   const [error, setError] = useState("");
   const [wishlist, setWishlist] = useState<string[]>([]);
 
-  useEffect(() => {
-    const getNewArrivals = async () => {
-      try {
-        setLoading(true);
-        setError("");
+ useEffect(() => {
+  const getNewArrivals = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-        if (!API_URL) {
-          throw new Error("NEXT_PUBLIC_API_URL is not configured");
-        }
-
-        const response = await fetch(
-          `${API_URL}/api/v1/products`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            cache: "no-store",
-          }
-        );
-
-        const result: ProductsResponse =
-          await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(
-            result.message || "Failed to load new arrivals"
-          );
-        }
-
-        setProducts(result.data || []);
-      } catch (error) {
-        console.error("New arrivals error:", error);
-
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load new arrivals"
-        );
-      } finally {
-        setLoading(false);
+      if (!API_URL) {
+        throw new Error("NEXT_PUBLIC_API_URL is not configured");
       }
-    };
 
-    getNewArrivals();
-  }, []);
+      const response = await fetch(
+        `${API_URL}/api/v1/products/new-arrivals`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+
+      const result: ProductsResponse = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Failed to load new arrivals"
+        );
+      }
+
+      setProducts(result.data || []);
+    } catch (error) {
+      console.error("New arrivals error:", error);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load new arrivals"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  getNewArrivals();
+}, []);
 
   /*
    * Newest products first.
@@ -94,20 +93,7 @@ const NewArrivalsPage = () => {
    * We use createdAt when it is available.
    * The first 12 products are displayed.
    */
-  const newArrivals = useMemo(() => {
-    return [...products]
-      .sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) {
-          return 0;
-        }
-
-        return (
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime()
-        );
-      })
-      .slice(0, 12);
-  }, [products]);
+const newArrivals = products;
 
   const toggleWishlist = (id: string) => {
     setWishlist((current) =>
