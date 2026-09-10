@@ -14,10 +14,10 @@ export default function Home() {
     <>
     <Hero></Hero>
     <CategoryShowCase></CategoryShowCase>
-    <DealsOfTheDay></DealsOfTheDay>
+    <PopularProducts></PopularProducts>
     <AIFeatureShowcase></AIFeatureShowcase>
     <PowerOfAi></PowerOfAi>
-    <PopularProducts></PopularProducts>
+    <DealsOfTheDay></DealsOfTheDay>
     <CustomerTrust></CustomerTrust>
     <Newsletter></Newsletter>
     </>
