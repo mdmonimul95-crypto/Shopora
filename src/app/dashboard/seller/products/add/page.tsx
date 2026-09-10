@@ -54,7 +54,7 @@ const initialImages: ProductImage[] = [];
 
 const AddNewProduct = () => {
   const router = useRouter();
-  const {data:session} = useSession();
+  const { data: session } = useSession();
   const sellerId = session?.user?.id;
 
 
@@ -98,6 +98,8 @@ const AddNewProduct = () => {
   const [categoryLoading, setCategoryLoading] =
     useState(false);
 
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
   const [brands, setBrands] =
     useState<Brand[]>([]);
 
@@ -107,7 +109,7 @@ const AddNewProduct = () => {
   const [generatingType, setGeneratingType] =
     useState<GenerateType>(null);
 
-    const [selectedBrandId, setSelectedBrandId] = useState("");
+  const [selectedBrandId, setSelectedBrandId] = useState("");
 
   const [saving, setSaving] =
     useState(false);
@@ -141,7 +143,7 @@ const AddNewProduct = () => {
         if (!response.ok) {
           throw new Error(
             result.message ||
-              "Failed to fetch categories"
+            "Failed to fetch categories"
           );
         }
 
@@ -182,7 +184,7 @@ const AddNewProduct = () => {
         if (!response.ok) {
           throw new Error(
             result.message ||
-              "Failed to fetch brands"
+            "Failed to fetch brands"
           );
         }
 
@@ -251,7 +253,7 @@ const AddNewProduct = () => {
         uploadData.append(
           "key",
           process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API ||
-            ""
+          ""
         );
 
         uploadData.append(
@@ -470,7 +472,7 @@ const AddNewProduct = () => {
       return;
     }
 
-    if(!sellerId){
+    if (!sellerId) {
       toast.error("Seller session not found.")
       return
     }
@@ -489,8 +491,8 @@ const AddNewProduct = () => {
         salePrice:
           formData.salePrice
             ? Number(
-                formData.salePrice
-              )
+              formData.salePrice
+            )
             : 0,
 
         stockQuantity:
@@ -501,8 +503,8 @@ const AddNewProduct = () => {
         lowStockAlert:
           formData.lowStockAlert
             ? Number(
-                formData.lowStockAlert
-              )
+              formData.lowStockAlert
+            )
             : 10,
 
         productStatus,
@@ -515,8 +517,9 @@ const AddNewProduct = () => {
           images.map(
             (image) => image.url
           ),
-          sellerId: sellerId,
-          brandId: selectedBrandId || undefined,
+        sellerId: sellerId,
+        brandId: selectedBrandId || undefined,
+        categoryId: selectedCategoryId || undefined,
       };
 
       await createProduct(
@@ -535,16 +538,16 @@ const AddNewProduct = () => {
     } catch (error) {
 
 
-       if (
-  error instanceof Error &&
-  (
-    error.message.includes("Product_sku_key") ||
-    error.message.includes("Unique constraint failed")
-  )
-) {
-  toast.error("Please add a unique SKU.");
-  return;
-}
+      if (
+        error instanceof Error &&
+        (
+          error.message.includes("Product_sku_key") ||
+          error.message.includes("Unique constraint failed")
+        )
+      ) {
+        toast.error("Please add a unique SKU.");
+        return;
+      }
 
 
 
@@ -773,42 +776,29 @@ const AddNewProduct = () => {
 
                         <select
                           name="category"
-                          value={
-                            formData.category
-                          }
-                          onChange={
-                            handleChange
-                          }
+                          value={formData.category}
+                          onChange={(e) => {
+                            const selectedName = e.target.value;
+                            const matchedCategory = categories.find(
+                              (c) => c.name === selectedName
+                            );
+
+                            setFormData((prev) => ({ ...prev, category: selectedName }));
+                            setSelectedCategoryId(matchedCategory?.id || "");
+                          }}
                           required
-                          disabled={
-                            categoryLoading
-                          }
+                          disabled={categoryLoading}
                           className="w-full appearance-none rounded-lg border border-[#DDE5E5] bg-white px-3 py-3 pr-10 text-[14px] text-[#1E293B] outline-none transition-all focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 disabled:cursor-not-allowed disabled:bg-[#F8FAFA]"
                         >
-
                           <option value="">
-                            {categoryLoading
-                              ? "Loading categories..."
-                              : "Select category"}
+                            {categoryLoading ? "Loading categories..." : "Select category"}
                           </option>
 
-                          {categories.map(
-                            (category) => (
-                              <option
-                                key={
-                                  category.id
-                                }
-                                value={
-                                  category.name
-                                }
-                              >
-                                {
-                                  category.name
-                                }
-                              </option>
-                            )
-                          )}
-
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.name}>
+                              {category.name}
+                            </option>
+                          ))}
                         </select>
 
                         <ChevronDown
@@ -831,7 +821,7 @@ const AddNewProduct = () => {
 
                       <div className="relative">
 
-                                                <select
+                        <select
                           name="brand"
                           value={
                             formData.brand
@@ -963,14 +953,14 @@ const AddNewProduct = () => {
                             size={15}
                             className={
                               generatingType ===
-                              "short"
+                                "short"
                                 ? "animate-spin"
                                 : ""
                             }
                           />
 
                           {generatingType ===
-                          "short"
+                            "short"
                             ? "Generating Short Description..."
                             : "Generate Short Description"}
 
@@ -1285,13 +1275,13 @@ const AddNewProduct = () => {
                                 ...prev,
                                 stockStatus:
                                   e.target.value ===
-                                  "in-stock"
+                                    "in-stock"
                                     ? "IN_STOCK"
                                     : e.target
-                                        .value ===
+                                      .value ===
                                       "low-stock"
-                                    ? "LOW_STOCK"
-                                    : "OUT_OF_STOCK",
+                                      ? "LOW_STOCK"
+                                      : "OUT_OF_STOCK",
                               })
                             );
                           }}
@@ -1465,14 +1455,14 @@ const AddNewProduct = () => {
                         size={16}
                         className={
                           generatingType ===
-                          "long"
+                            "long"
                             ? "animate-spin"
                             : ""
                         }
                       />
 
                       {generatingType ===
-                      "long"
+                        "long"
                         ? "Generating Detailed Description..."
                         : "Generate Detailed Description"}
 
