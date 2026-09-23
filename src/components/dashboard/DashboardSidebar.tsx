@@ -220,6 +220,11 @@ const marketingLinks = [
   label: "TikTok Leads",
   href: "/dashboard/seller/marketing/tiktok-leads",
 },
+{
+  label: "Influencer Scraper",
+  href: "/dashboard/seller/marketing/influencer-scraper",
+  icon: Users,
+},
 ];
 
 
