@@ -279,11 +279,6 @@ const adminNavItems: NavItem[] = [
     icon: Ticket,
   },
   {
-    label: "Customer Support",
-    href: "/dashboard/support",
-    icon: Headphones,
-  },
-  {
     label: "AI Tools",
     href: "/dashboard/admin/ai-tools",
     icon: Sparkles,
