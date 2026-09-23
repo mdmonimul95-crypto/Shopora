@@ -6,6 +6,14 @@
 **Document Type:** Software Requirement Specification  
 **Version:** 2.0
 
+# Project Live URL
+**Front-End:** https://shopora-ashen.vercel.app
+
+# Github URL
+**Front-End:**  https://github.com/mdmonimul95-crypto/Shopora
+**Backend-End:** https://github.com/mdmonimul95-crypto/Shopora-server
+
+
 ---
 
 # 1. Project Overview
