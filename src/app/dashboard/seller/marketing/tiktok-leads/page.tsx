@@ -614,10 +614,6 @@ export default function TikTokLeadsPage() {
                         </th>
 
                         <th className="whitespace-nowrap px-5 py-4 text-center font-['Poppins'] text-xs font-semibold uppercase tracking-wide text-[#64748B]">
-                          Source
-                        </th>
-
-                        <th className="whitespace-nowrap px-5 py-4 text-center font-['Poppins'] text-xs font-semibold uppercase tracking-wide text-[#64748B]">
                           Action
                         </th>
 
@@ -739,32 +735,6 @@ export default function TikTokLeadsPage() {
                                 {lead.network ||
                                   "TikTok.com"}
                               </span>
-                            </td>
-
-                            {/* Source */}
-
-                            <td className="px-5 py-4 text-center align-middle">
-                              {lead.url ? (
-                                <a
-                                  href={
-                                    lead.url
-                                  }
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  title="Open source"
-                                  className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg border border-[#D9E1E7] text-[#64748B] transition hover:border-[#0F766E] hover:bg-[#E8F5F3] hover:text-[#0F766E]"
-                                >
-                                  <ExternalLink
-                                    size={
-                                      16
-                                    }
-                                  />
-                                </a>
-                              ) : (
-                                <span className="font-['Poppins'] text-sm text-[#CBD5E1]">
-                                  —
-                                </span>
-                              )}
                             </td>
 
                             {/* Action */}
