@@ -38,6 +38,7 @@ const fallbackImages: Record<string, string> = {
 };
 
 const CategoryShowCase = () => {
+  console.log("2. Category is rendering")
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 

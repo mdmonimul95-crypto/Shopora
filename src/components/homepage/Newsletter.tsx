@@ -2,6 +2,7 @@ import { Mail } from "lucide-react";
 import React from "react";
 
 const Newsletter = () => {
+  console.log("9. Newsletter is rendering")
   return (
     <section className="bg-white px-4 py-15 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">

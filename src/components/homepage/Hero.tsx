@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 
 const Hero = () => {
+  console.log("1. Hero is rendering")
   const features = [
     {
       icon: Box,

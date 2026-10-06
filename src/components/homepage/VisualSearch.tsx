@@ -29,6 +29,7 @@ interface VisualSearchResponse {
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const VisualSearch = () => {
+  console.log("5. VisualSearch is rendering")
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 
 const PopularProducts = () => {
+  console.log("3. Popular Product is rendering")
   const [products, setProducts] = useState<PopularProduct[]>([]);
   const [wishlistLoading, setWishlistLoading] = useState<string | null>(null);
   const [wishlistedProducts, setWishlistedProducts] = useState<string[]>([]);

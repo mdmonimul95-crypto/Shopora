@@ -8,12 +8,13 @@ import { getProducts } from "@/lib/api/getProducts";
 import { addToCart } from "@/lib/cart";
 import type { getProduct } from "@/type/dashboard/Seller";
 import { toast } from "react-toastify";
+import DealCountdown from "./DealCountdown";
 
 const DealsOfTheDay = () => {
+  console.log("7. Deals is rendering")
   const [products, setProducts] = useState<getProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [offset, setOffset] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(8 * 60 * 60 + 45 * 60 + 32);
 
   useEffect(() => {
     getProducts()
@@ -22,13 +23,7 @@ const DealsOfTheDay = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setSecondsLeft((seconds) => (seconds > 0 ? seconds - 1 : 0));
-    }, 1000);
 
-    return () => window.clearInterval(timer);
-  }, []);
 
   const deals = useMemo(
     () =>
@@ -46,10 +41,7 @@ const DealsOfTheDay = () => {
   );
 
   const visibleDeals = deals.slice(offset, offset + 5);
-  const hours = Math.floor(secondsLeft / 3600);
-  const minutes = Math.floor((secondsLeft % 3600) / 60);
-  const seconds = secondsLeft % 60;
-  const countdown = `${String(hours).padStart(2, "0")} : ${String(minutes).padStart(2, "0")} : ${String(seconds).padStart(2, "0")}`;
+
 
   const addDealToCart = (product: getProduct) => {
     addToCart({
@@ -76,17 +68,7 @@ const DealsOfTheDay = () => {
             </h2>
 
             {/* Countdown */}
-            <div className="flex items-center gap-1.5">
-              <Clock
-                size={12}
-                strokeWidth={2.5}
-                className="text-[#FF6B6B]"
-              />
-
-              <span className="font-['Poppins'] text-[10px] font-medium text-[#FF6B6B] sm:text-[11px]">
-                Ends in {countdown}
-              </span>
-            </div>
+            <DealCountdown />
           </div>
 
           {/* View All */}
