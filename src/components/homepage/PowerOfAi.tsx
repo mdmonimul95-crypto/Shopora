@@ -37,6 +37,7 @@ const aiFeatures: AiPower[] = [
 ];
 
 const PowerOfAi = () => {
+  console.log("6. PowerOfAi is rendering")
   return (
     <section className="bg-white px-4 py-15 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">

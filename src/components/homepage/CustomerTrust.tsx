@@ -36,6 +36,7 @@ const trustStats: TrustStat[] = [
 ];
 
 const CustomerTrust = () => {
+  console.log("8. CustomerTrust is rendering")
   return (
     <section className="bg-white px-4 py-15 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">

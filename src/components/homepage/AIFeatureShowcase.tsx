@@ -25,6 +25,7 @@ const aiFeatures: AIFeature[] = [
 ];
 
 const AIFeatureShowcase = () => {
+  console.log("4. AI Feature Showcase is rendering")
   return (
     <section className="bg-white px-4 py-15 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
